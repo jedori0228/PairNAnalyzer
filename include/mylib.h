@@ -277,6 +277,69 @@ void AddPhantomZero(double a, TString align, int digit_int, int digit_frac){
 
 }
 
+vector<int> GetHNMassRange(int mZP){
+
+  vector<int> this_masses;
+
+  if(mZP==500){
+    this_masses = {
+    100, 200, 
+    };
+    return this_masses;
+  }
+  if(mZP==750){
+    this_masses = {
+    100, 200, 300, 
+    };
+    return this_masses;
+  }
+  if(mZP==1000){
+    this_masses = {
+    100, 200, 300, 400, 
+    };
+    return this_masses;
+  }
+  if(mZP==1500){
+    this_masses = {
+    100, 200, 300, 400, 500, 600, 700, 
+    };
+    return this_masses;
+  }
+  if(mZP==2000){
+    this_masses = {
+    100, 200, 300, 400, 500, 600, 700, 800, 900, 
+    };
+    return this_masses;
+  }
+  if(mZP==2500){
+    this_masses = {
+    //100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 
+    100, 300, 500, 700, 900, 1000, 1100, 1200,
+    };
+    return this_masses;
+  }
+  if(mZP==3000){
+    this_masses = {
+    100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 
+    };
+    return this_masses;
+  }
+  if(mZP==4000){
+    this_masses = {
+    //100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 
+    100, 500, 1000, 1500, 1900,
+    };
+    return this_masses;
+  }
+
+  cout << "[GetHNMassRange(int mZP)] Wrong mZP!!" << endl;
+  return this_masses;
+
+
+
+
+}
+
 
 
 
