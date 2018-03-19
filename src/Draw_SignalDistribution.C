@@ -3,7 +3,8 @@
 
 void Draw_SignalDistribution(){
 
-  TString bkgdsample = "TT_powheg";
+  TString bkgdsample_prompt = "DYJets";
+  TString bkgdsample_fake = "TT_powheg";
 
   gStyle->SetOptStat(0);
 
@@ -55,7 +56,8 @@ void Draw_SignalDistribution(){
 kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
 };
 
-  TFile *file_bkg = new TFile(base_filepath+"/PairNAnalyzer_SK"+bkgdsample+"_cat_v8-0-7.root");
+  TFile *file_bkg_prompt = new TFile(base_filepath+"/PairNAnalyzer_SK"+bkgdsample_prompt+"_cat_v8-0-7.root");
+  TFile *file_bkg_fake = new TFile(base_filepath+"/PairNAnalyzer_SK"+bkgdsample_fake+"_cat_v8-0-7.root");
 
   for(unsigned int i=0; i<channels.size(); i++){
 
@@ -101,8 +103,9 @@ kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
         "Electron_Size", "Electron_IsolationPass", "Electron_GsfCtfScPixChargeConsistency", "Electron_PassesConvVeto", "Electron_MVA_InnerBarrel", "Electron_MVA_OuterBarrel", "Electron_MVA_EndCap", "Electron_MissingHits",
         "Electron_ZZMVA_InnerBarrel", "Electron_ZZMVA_OuterBarrel", "Electron_ZZMVA_EndCap",
         "Electron_Pt", "Electron_Eta", "Electron_RelMiniIso", "Electron_PtRatio", "Electron_PtRel",
-        "Electron_0_Pt", "Electron_0_Eta", "Electron_0_RelMiniIso", "Electron_0_PtRatio", "Electron_0_PtRel", "Electron_0_MissingHits",
-        "Electron_1_Pt", "Electron_1_Eta", "Electron_1_RelMiniIso", "Electron_1_PtRatio", "Electron_1_PtRel", "Electron_1_MissingHits",
+
+        "Electron_0_Pt", "Electron_0_Eta", "Electron_0_RelMiniIso", "Electron_0_PtRatio", "Electron_0_PtRel", "Electron_0_MissingHits", "Electron_0_MVA_InnerBarrel", "Electron_0_MVA_OuterBarrel", "Electron_0_MVA_EndCap", "Electron_0_ZZMVA_InnerBarrel", "Electron_0_ZZMVA_OuterBarrel", "Electron_0_ZZMVA_EndCap",
+        "Electron_1_Pt", "Electron_1_Eta", "Electron_1_RelMiniIso", "Electron_1_PtRatio", "Electron_1_PtRel", "Electron_1_MissingHits", "Electron_1_MVA_InnerBarrel", "Electron_1_MVA_OuterBarrel", "Electron_1_MVA_EndCap", "Electron_1_ZZMVA_InnerBarrel", "Electron_1_ZZMVA_OuterBarrel", "Electron_1_ZZMVA_EndCap",
 
         "FatJet_Size",
         "FatJet_PrunedMass",
@@ -118,8 +121,9 @@ kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
         "# of Electron", "", "Electron Pass Three Charge", "Electron Pass Conv. Veto", "Electron MVA, Inner Barrel",  "Electron MVA, Outer Barrel", "Electron MVA, Endcap", "Electron Missing Hits",
         "Electron ZZMVA, Inner Barrel",  "Electron ZZMVA, Outer Barrel", "Electron ZZMVA, Endcap",
         "Electron p_{T} (GeV)", "Electron #eta", "Electron RelMiniIso", "Electron p_{T}^{ratio}", "Electron p_{T}^{rel}",
-        "Leading Electron p_{T} (GeV)", "Leading Electron #eta", "Leading Electron RelMiniIso", "Leading Electron p_{T}^{ratio}", "Leading Electron p_{T}^{rel}", "Leading Electron Missing Hits",
-        "Subleading Electron p_{T} (GeV)", "Subleading Electron #eta", "Subleading Electron RelMiniIso", "Subleading Electron p_{T}^{ratio}", "Subleading Electron p_{T}^{rel}", "subleading Electron Missing Hits",
+
+        "Leading Electron p_{T} (GeV)", "Leading Electron #eta", "Leading Electron RelMiniIso", "Leading Electron p_{T}^{ratio}", "Leading Electron p_{T}^{rel}", "Leading Electron Missing Hits", "Leading Electron MVA, Inner Barrel",  "Leading Electron MVA, Outer Barrel", "Leading Electron MVA, Endcap", "Leading Electron ZZMVA, Inner Barrel",  "Leading Electron ZZMVA, Outer Barrel", "Leading Electron ZZMVA, Endcap",
+        "Subleading Electron p_{T} (GeV)", "Subleading Electron #eta", "Subleading Electron RelMiniIso", "Subleading Electron p_{T}^{ratio}", "Subleading Electron p_{T}^{rel}", "subleading Electron Missing Hits", "Subleading Electron MVA, Inner Barrel",  "Subleading Electron MVA, Outer Barrel", "Subleading Electron MVA, Endcap", "Subleading Electron ZZMVA, Inner Barrel",  "Subleading Electron ZZMVA, Outer Barrel", "Subleading Electron ZZMVA, Endcap",
 
         "# of AK8Jet",
         "AK8Jet PrunedMass (GeV)",
@@ -132,18 +136,60 @@ kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
       };
     }
 
+    //==== Event Selection
+    vector<TString> common_vars = {
+      "MergeJetToClosestN_N", "MergeJetToClosestN_n_Merged_FatJet", "MergeJetToClosestN_n_Merged_Jet", "MergeJetToClosestN_Z",
+      "MinimumMDiff_N", "MinimumMDiff_n_Merged_FatJet", "MinimumMDiff_n_Merged_Jet", "MinimumMDiff_Z",
+    };
+    vector<TString> common_xtitels = {
+      "m_{N,RECO} (GeV)", "# of AK8 Jets Used", "# of AK4 Jets Used", "m_{Z',RECO} (GeV)",
+      "m_{N,RECO} (GeV)", "# of AK8 Jets Used", "# of AK4 Jets Used", "m_{Z',RECO} (GeV)",
+    };
+
+    for(unsigned int l=0; l<common_vars.size(); l++){
+      vars.push_back( common_vars.at(l) );
+      xtitles.push_back( common_xtitels.at(l) );
+    }
+
+/*
+    //==== Quick
+    vars = {
+      "MergeJetToClosestN_N", "MergeJetToClosestN_n_Merged_FatJet", "MergeJetToClosestN_n_Merged_Jet",  "MergeJetToClosestN_Z",
+      "MinimumMDiff_N", "MinimumMDiff_n_Merged_FatJet", "MinimumMDiff_n_Merged_Jet", "MinimumMDiff_Z",
+    };
+    xtitles = {
+      "m_{N,RECO} (GeV)", "# of AK8 Jets Used", "# of AK4 Jets Used", "m_{Z',RECO} (GeV)",
+      "m_{N,RECO} (GeV)", "# of AK8 Jets Used", "# of AK4 Jets Used", "m_{Z',RECO} (GeV)",
+    };
+*/
 
     for(unsigned int l=0; l<vars.size(); l++){
 
       double old_width = 600;
       double new_width = 750;
-      TCanvas *c1 = new TCanvas("c1", "", 700, 600);
+      double height = 600;
+
+      bool MakeWideCanvas = false;
+
+      if(vars.at(l).Contains("MergeJetToClosestN_N")||vars.at(l).Contains("MinimumMDiff_N")||vars.at(l).Contains("MergeJetToClosestN_Z")||vars.at(l).Contains("MinimumMDiff_Z")){
+        MakeWideCanvas = true;
+        new_width = 2000;
+        height = 1000;
+      }
+
+      TCanvas *c1 = new TCanvas("c1", "", new_width, height);
       canvas_margin(c1);
 
       double right_margin = (0.05*old_width+new_width-old_width)/new_width;
+      double left_margin = 0.16*(old_width/new_width);
+      if(MakeWideCanvas){
+        c1->SetLeftMargin( 0.30 );
+        right_margin = 0.25;
+        left_margin = 0.09;
+      }
 
       c1->SetRightMargin( right_margin );
-      c1->SetLeftMargin( 0.16*(old_width/new_width) );
+      c1->SetLeftMargin( left_margin );
 
       //cout << right_margin << endl;
 
@@ -171,6 +217,14 @@ kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
       if(vars.at(l).Contains("Mass")){
         x_max = 700.;
         n_rebin = 10;
+      }
+      if(vars.at(l).Contains("MergeJetToClosestN_N")||vars.at(l).Contains("MinimumMDiff_N")){
+        x_max = 2000.;
+        n_rebin = 20;
+      }
+      if(vars.at(l).Contains("MergeJetToClosestN_Z")||vars.at(l).Contains("MinimumMDiff_Z")){
+        x_max = 6000.;
+        n_rebin = 100;
       }
       if(vars.at(l).Contains("Tau")){
         x_max = 1.5;
@@ -216,6 +270,10 @@ kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
         x_max = 10.;
         n_rebin = 1;
       }
+      if(vars.at(l).Contains("MergeJetToClosestN_n_Merged")||vars.at(l).Contains("MinimumMDiff_n_Merged")){
+        x_max = 5.;
+        n_rebin = 1;
+      }
 
 
 
@@ -248,15 +306,22 @@ kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
       hist_dummy->GetYaxis()->SetLabelSize(0.04);
       hist_dummy->GetYaxis()->SetTitleSize(0.06);
       hist_dummy->GetYaxis()->SetTitleOffset(0.92);
+      if(MakeWideCanvas){
+        hist_dummy->GetYaxis()->SetTitleOffset(0.70);
+      }
 
       hist_dummy->GetYaxis()->SetRangeUser(0., 1.1);
 
+      bool XAxisLog = false;
       if(vars.at(l).Contains("Pt")){
+        XAxisLog = true;
         if(!vars.at(l).Contains("PtRatio") && !vars.at(l).Contains("PtRel")){
           c1->SetLogx();
         }
       }
-      if(vars.at(l).Contains("Iso")){
+      bool YAxisLog = false;
+      if(vars.at(l).Contains("Iso")&&vars.at(l).Contains("Rel")){
+        YAxisLog = true;
         hist_dummy->GetYaxis()->SetRangeUser(0.001, 2.);
         hist_dummy->GetXaxis()->SetRangeUser(0.001, 2.);
         c1->SetLogy();
@@ -274,7 +339,8 @@ kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
 
       if(CheckIsoPass){
 
-        hist_dummy->GetXaxis()->SetRangeUser(0, 7);
+        hist_dummy->GetXaxis()->SetRangeUser(0, 8);
+        if(channel=="ElEl") hist_dummy->GetXaxis()->SetRangeUser(0,9);
 
         hist_dummy->GetYaxis()->SetTitle("Isolation Efficiency");
         hist_dummy->GetXaxis()->SetBinLabel(1, "None");
@@ -283,7 +349,11 @@ kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
         hist_dummy->GetXaxis()->SetBinLabel(4, "MiniRelIso<0.40");
         hist_dummy->GetXaxis()->SetBinLabel(5, "MultiIso Loose");
         hist_dummy->GetXaxis()->SetBinLabel(6, "MiniRelIso<0.16");
+        if(channel=="ElEl") hist_dummy->GetXaxis()->SetBinLabel(6, "MiniRelIso<0.12");
         hist_dummy->GetXaxis()->SetBinLabel(7, "MultiIso Tight");
+        hist_dummy->GetXaxis()->SetBinLabel(8, "SUSY");
+        if(channel=="ElEl") hist_dummy->GetXaxis()->SetBinLabel(9, "HeepID");
+
 
       }
       if(PassOrFail){
@@ -295,25 +365,47 @@ kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
       lg->SetBorderSize(0);
       lg->SetFillStyle(0);
 
+      double this_ymax = -999;
+
       //==== Background
-      TH1D *hist_bkg = (TH1D *)file_bkg->Get(vars.at(l));
-      hist_bkg->Rebin(n_rebin);
-      if(CheckIsoPass) hist_bkg->Scale(1./hist_bkg->GetBinContent(1));
-      else if(PassOrFail) hist_bkg->Scale(1./hist_bkg->GetEntries());
-      else hist_bkg->Scale(1./GetMaximum(hist_bkg));
-      hist_bkg->SetFillColor(kGray);
-      hist_bkg->SetLineWidth(0);
-      hist_bkg->SetLineColor(kGray);
-      hist_bkg->Draw("histsame");
-      lg->AddEntry(hist_bkg, bkgdsample+" (Fake)", "f");
+/*
+      TH1D *hist_bkg_prompt = (TH1D *)file_bkg_prompt->Get(vars.at(l));
+      if(hist_bkg_prompt){
+        hist_bkg_prompt->Rebin(n_rebin);
+        if(CheckIsoPass) hist_bkg_prompt->Scale(1./hist_bkg_prompt->GetBinContent(1));
+        else if(PassOrFail) hist_bkg_prompt->Scale(1./hist_bkg_prompt->GetEntries());
+        else hist_bkg_prompt->Scale(1./hist_bkg_prompt->GetEntries());
+        hist_bkg_prompt->SetFillColorAlpha(kCyan,0.50);
+        hist_bkg_prompt->SetLineWidth(0);
+        hist_bkg_prompt->SetLineColor(0);
+        hist_bkg_prompt->Draw("histsame");
+        lg->AddEntry(hist_bkg_prompt, bkgdsample_prompt+" (Prompt)", "f");
+        this_ymax = max(this_ymax,GetMaximum(hist_bkg_prompt));
+      }
+*/
+      TH1D *hist_bkg_fake = (TH1D *)file_bkg_fake->Get(vars.at(l));
+      if(hist_bkg_fake){
+        hist_bkg_fake->Rebin(n_rebin);
+        if(CheckIsoPass) hist_bkg_fake->Scale(1./hist_bkg_fake->GetBinContent(1));
+        else if(PassOrFail) hist_bkg_fake->Scale(1./hist_bkg_fake->GetEntries());
+        else hist_bkg_fake->Scale(1./hist_bkg_fake->GetEntries());
+        hist_bkg_fake->SetFillColorAlpha(kGray,0.50);
+        hist_bkg_fake->SetLineWidth(0);
+        hist_bkg_fake->SetLineColor(0);
+        hist_bkg_fake->Draw("histsame");
+        lg->AddEntry(hist_bkg_fake, bkgdsample_fake+" (Fake)", "f");
+        this_ymax = max(this_ymax,GetMaximum(hist_bkg_fake));
+      }
 
       for(unsigned j=0; j<masses.size(); j++){
 
         int mZP = masses.at(j);
+        //cout << "Z = " << mZP << endl;
         vector<int> hnmasses = GetHNMassRange(mZP);
         for(unsigned int k=0; k<hnmasses.size(); k++){
           int hnmass = hnmasses.at(k);
-          TString filename = "PairNAnalyzer_SKHNpair_"+channel+"_WR5000_Zp"+TString::Itoa(mZP,10)+"_HN"+TString::Itoa(hnmass,10)+"_official_cat_v8-0-7.root";
+          //cout << "  mN = " << hnmass << endl;
+          TString filename = "PairNAnalyzer_HNpair_"+channel+"_WR5000_Zp"+TString::Itoa(mZP,10)+"_HN"+TString::Itoa(hnmass,10)+"_official_cat_v8-0-7.root";
           TFile *file = new TFile(base_filepath+filename);
           TH1D *hist = (TH1D *)file->Get(vars.at(l));
 
@@ -326,12 +418,16 @@ kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
           hist->SetLineColor(colors.at(j));
           hist->SetLineWidth(2);
           hist->SetLineStyle(k+1);
-          double this_scale = GetMaximum(hist);
+          double this_scale = hist->GetEntries();
+
           if(CheckIsoPass) this_scale = hist->GetBinContent(1);
           else if(PassOrFail) this_scale = hist->GetEntries();
           hist->Scale(1./this_scale);
           
           hist->Draw("histsame");
+          //cout << "  mN = " << hnmass << endl;
+
+          this_ymax = max(this_ymax,GetMaximum(hist));
 
           TString alias = "m_{Z'} = "+TString::Itoa(mZP,10)+" GeV, m_{N} = "+TString::Itoa(hnmass,10);
           lg->AddEntry(hist, alias, "l");
@@ -354,7 +450,23 @@ kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
 
       hist_dummy->Draw("axissame");
 
+      double y_max_scale = 1.2;
+      if(YAxisLog) y_max_scale = 2.;
+      hist_dummy->GetYaxis()->SetRangeUser(0.001, y_max_scale*this_ymax); //FIXME use getymin?
+
       c1->SaveAs(base_plotpath+"/HN"+channel+"_"+vars.at(l)+".pdf");
+
+      if(vars.at(l).Contains("MergeJetToClosestN_N")||vars.at(l).Contains("MinimumMDiff_N")){
+        hist_dummy->GetXaxis()->SetRangeUser(0,550);
+        c1->SaveAs(base_plotpath+"/HN"+channel+"_"+vars.at(l)+"_0_550.pdf");
+        hist_dummy->GetXaxis()->SetRangeUser(550,1050);
+        c1->SaveAs(base_plotpath+"/HN"+channel+"_"+vars.at(l)+"_550_1050.pdf");
+        hist_dummy->GetXaxis()->SetRangeUser(1050,1550);
+        c1->SaveAs(base_plotpath+"/HN"+channel+"_"+vars.at(l)+"_1050_1550.pdf");
+        hist_dummy->GetXaxis()->SetRangeUser(1550,2050);
+        c1->SaveAs(base_plotpath+"/HN"+channel+"_"+vars.at(l)+"_1550_2050.pdf");
+      }
+
       c1->Close();
 
     }
