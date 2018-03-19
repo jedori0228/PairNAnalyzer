@@ -173,6 +173,8 @@ kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
 
               //cout << this_x_left << "\t" << this_x_right << endl;
 
+              TCanvas *c_temp = new TCanvas("c_temp", "", 500, 500);
+              c_temp->cd();
               TFitResultPtr fitresl = hist->Fit("gaus", "Q", "", this_x_left, this_x_right);
               TF1 *fit = hist->GetFunction("gaus");
               double chi2n = fit->GetChisquare()/fit->GetNDF();
@@ -185,6 +187,8 @@ kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
                 chi2min = chi2n;
 
               }
+
+              c_temp->Close();
 
             }
 
@@ -203,6 +207,7 @@ kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
 
         } //END loop HN mass
 
+        c1->cd();
         TGraph *gr_mean = new TGraph(n_hnmass,x_hnmass,y_mean);
         gr_mean->SetLineWidth(2);
         gr_mean->SetLineColor(colors.at(j));
