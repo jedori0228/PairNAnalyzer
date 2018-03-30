@@ -7,7 +7,7 @@
 void LHENtuple::Loop()
 {
   Long64_t nentries = fChain->GetEntriesFast();
-  //nentries=10;
+  nentries=2000;
 
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     GetEntry(jentry);
@@ -34,11 +34,15 @@ void LHENtuple::Loop()
 
       FillHist("hist_mN", N[i].M(), 1., 20, 90., 110.);
 
-      FillHist("DeltaR_Lepton_Jet", Lepton[i].DeltaR( Jet1[i] ), 1, 600, 0., 6.);
-      FillHist("DeltaR_Lepton_Jet", Lepton[i].DeltaR( Jet2[i] ), 1, 600, 0., 6.);
-      FillHist("DeltaR_Jets", Jet1[i].DeltaR( Jet2[i] ), 1, 600, 0., 6.);
+      FillHist("Pair__DeltaR_Lepton_Jet", Lepton[i].DeltaR( Jet1[i] ), 1, 600, 0., 6.);
+      FillHist("Pair__DeltaR_Lepton_Jet", Lepton[i].DeltaR( Jet2[i] ), 1, 600, 0., 6.);
+      FillHist("Pair__DeltaR_Lepton_Jet1Jet2", Lepton[i].DeltaR( Jet1[i]+Jet2[i] ), 1, 600, 0., 6.);
+      FillHist("Pair__DeltaR_Jet1_Jet2", Jet1[i].DeltaR( Jet2[i] ), 1, 600, 0., 6.);
 
     }
+
+    FillHist("DeltaR_Leptons", Lepton[0].DeltaR( Lepton[1] ), 1, 600, 0., 6.);
+    FillHist("DeltaPhi_Leptons", Lepton[0].DeltaPhi( Lepton[1] ), 1, 600, 0., 6.);
 
 
   }

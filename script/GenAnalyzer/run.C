@@ -2,7 +2,7 @@
 
 void run(){
 
-  LHENtuple m("PairProduction_MuMu_ZR2000_N100_WR5000_LO.root");
+  LHENtuple m("rootfiles/PairProduction_MuMu_ZR2500_N400_WR5000_LO.root");
   m.Loop();
 
   TFile *out = new TFile("hists.root","RECREATE");
