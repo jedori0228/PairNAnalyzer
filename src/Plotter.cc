@@ -31,8 +31,9 @@ void Plotter::draw_hist(){
     thiscut_plotpath = plotpath+"/"+histname_suffix[i_cut];
     if(ApplyMCNormSF.at(i_cut)) thiscut_plotpath = plotpath+"/MCNormSFed"+histname_suffix[i_cut];
 
-    mkdir(thiscut_plotpath);
-    TFile *outputfile = new TFile(thiscut_plotpath+"/hists.root", "RECREATE");
+    //m.outputdir_for_shape = ENV_PLOT_PATH+"/"+dataset+"/FilesForShapes/SR/";
+    mkdir(outputdir_for_shape);
+    TFile *outputfile = new TFile(outputdir_for_shape+"/hists.root", "RECREATE");
     
     cout
     << endl
@@ -375,7 +376,7 @@ void Plotter::draw_hist(){
     } // END loop over variables
 
     outputfile->Close();
-    system("rm "+thiscut_plotpath+"/hists.root");
+    //system("rm "+thiscut_plotpath+"/hists.root");
 
 
   } // END loop over cuts
@@ -821,7 +822,8 @@ void Plotter::draw_canvas(THStack *mc_stack, TH1D *mc_staterror, TH1D *mc_allerr
   }
 
   //==== background err
-  mc_allerror->SetMarkerColorAlpha(kAzure-9, 0);
+  mc_allerror->SetMarkerColor(0);
+  mc_allerror->SetMarkerSize(0);
   mc_allerror->SetFillStyle(3013);
   mc_allerror->SetFillColor(kBlack);
   mc_allerror->SetLineColor(0);
@@ -1050,7 +1052,7 @@ void Plotter::draw_canvas(THStack *mc_stack, TH1D *mc_staterror, TH1D *mc_allerr
 
   mkdir(thiscut_plotpath);
   c1->SaveAs(thiscut_plotpath+"/"+histname[i_var]+histname_suffix[i_cut]+".pdf");
-  //c1->SaveAs(thiscut_plotpath+"/"+histname[i_var]+histname_suffix[i_cut]+".png");
+  c1->SaveAs(thiscut_plotpath+"/"+histname[i_var]+histname_suffix[i_cut]+".png");
   outputf->cd();
   c1->Write();
   

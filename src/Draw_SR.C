@@ -108,6 +108,8 @@ void Draw_SR(int XXX=0){
     m.histname_suffix = {
 
       "_DiMuon_SS",
+      "_DiMuon_STge400_SS",
+      "_DiMuon_HTge300_SS",
 
     };
   }
@@ -118,6 +120,8 @@ void Draw_SR(int XXX=0){
     m.histname_suffix = {
 
       "_DiMuon_AllCharge",
+      "_DiMuon_STge400_AllCharge",
+      "_DiMuon_HTge300_AllCharge",
 
     };
   }
@@ -437,6 +441,7 @@ void Draw_SR(int XXX=0){
   //===============================
   
   m.plotpath = ENV_PLOT_PATH+"/"+m.data_class+"/SR/";
+  m.outputdir_for_shape = ENV_PLOT_PATH+"/"+dataset+"/FilesForShapes/SR/";
   m.make_plot_directory();
   
   //==========================
