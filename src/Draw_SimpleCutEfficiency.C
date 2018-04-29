@@ -4,7 +4,7 @@
 
 void Draw_SimpleCutEfficiency(){
 
-  TString region = "DiMuon_SS";
+  TString region = "DiMuon_AllCharge";
 
   setTDRStyle();
   gStyle->SetOptStat(0);
@@ -38,7 +38,7 @@ void Draw_SimpleCutEfficiency(){
 
   //==== Zp mass
 
-  vector<int> masses = {500, 1000, 1500, 2000, 2500, 4000};
+  vector<int> masses = {500, 750, 1500, 2000, 2500, 4000};
 
   vector<TString> channels = {
     "MuMu",
@@ -54,13 +54,13 @@ kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
     TString channel = channels.at(i);
 
     vector<TString> vars = {
-      "HT", "ST",
+      "HT", "ST", "secondLepton_Pt",
     };
     vector<TString> xtitles = {
-      "H_{T} (GeV)", "S_{T} (GeV)",
+      "H_{T} (GeV)", "S_{T} (GeV)", "Subleading Lepton p_{T} (GeV)",
     };
     vector<TString> dirs = {
-      ">", ">",
+      ">", ">", ">",
     };
 
     for(unsigned int l=0; l<vars.size(); l++){
@@ -146,6 +146,7 @@ kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
           TString filename = "PairNAnalyzer_"+lrsminfo.GetCATFileName()+"_cat_v8-0-7.root";
           //TString filename = "PairNAnalyzer_HNpair_"+channel+"_WR5000_Zp"+TString::Itoa(mZP,10)+"_HN"+TString::Itoa(hnmass,10)+"_official_cat_v8-0-7.root";
           TFile *file = new TFile(base_filepath+"/Signal/"+filename);
+          TH1D *hist_den = (TH1D *)file->Get("SignalNevent");
           TH1D *hist = (TH1D *)file->Get(region+"/"+vars.at(l)+"_"+region);
 
           if(!hist){
@@ -159,19 +160,19 @@ kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
           //==== Calculate Efficiency..
           TH1D *hist_eff = (TH1D *)hist->Clone();
           TH1D *hist_punzi = (TH1D *)hist->Clone();
-          double den = hist->Integral();
+          double den = hist_den->GetBinContent(1);
           double this_punzi_max = -999;
           double this_punzi_max_xvalue;
           for(int it_bin=1; it_bin<=hist->GetXaxis()->GetNbins(); it_bin++){
             double this_eff = -999;
             double this_bkgd = -999;
             if(dir=="<"){
-              this_eff = hist->Integral(1,it_bin);
-              this_bkgd = hist_bkgd->Integral(1,it_bin);
+              this_eff = hist->Integral(0,it_bin);
+              this_bkgd = hist_bkgd->Integral(0,it_bin);
             }
             else{
-              this_eff = hist->Integral(it_bin,hist->GetXaxis()->GetNbins());
-              this_bkgd = hist_bkgd->Integral(it_bin,hist->GetXaxis()->GetNbins());
+              this_eff = hist->Integral(it_bin,hist->GetXaxis()->GetNbins()+1);
+              this_bkgd = hist_bkgd->Integral(it_bin,hist->GetXaxis()->GetNbins()+1);
             }
 
             this_eff = this_eff/den;
@@ -179,6 +180,10 @@ kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
 
             hist_eff->SetBinContent(it_bin,this_eff);
             hist_punzi->SetBinContent(it_bin,this_punzi);
+
+            if(var=="ST" && it_bin==1){
+              cout << lrsminfo.GetLegendAlias() << "\t" << this_eff << endl;
+            }
 
             if(this_punzi_max<this_punzi){
               this_punzi_max = this_punzi;
@@ -192,7 +197,7 @@ kRed, kOrange, kGreen, kBlue, kViolet, kBlack, kCyan
           c1_down->cd();
           hist_punzi->Draw("histsame");
 
-          cout << lrsminfo.GetLegendAlias() << "\t" << this_punzi_max_xvalue << "\t" << this_punzi_max << endl;
+          //cout << lrsminfo.GetLegendAlias() << "\t" << this_punzi_max_xvalue << "\t" << this_punzi_max << endl;
 
           y_max_punzi = max(y_max_punzi,(hist_punzi->GetMaximum())*1.1);
 

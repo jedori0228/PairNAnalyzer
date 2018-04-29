@@ -401,6 +401,13 @@ vector<int> GetHNMassRange(int mZP, bool useallmass=false){
 
 }
 
+bool IsSignalCATSamaple(TString samplename){
+
+  if(samplename.Contains("HNpair")) return true;
+
+  return false;
+
+}
 
 
 

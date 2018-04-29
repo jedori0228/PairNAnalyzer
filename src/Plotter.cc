@@ -32,8 +32,9 @@ void Plotter::draw_hist(){
     if(ApplyMCNormSF.at(i_cut)) thiscut_plotpath = plotpath+"/MCNormSFed"+histname_suffix[i_cut];
 
     //m.outputdir_for_shape = ENV_PLOT_PATH+"/"+dataset+"/FilesForShapes/SR/";
-    mkdir(outputdir_for_shape);
-    TFile *outputfile = new TFile(outputdir_for_shape+"/hists.root", "RECREATE");
+    //mkdir(outputdir_for_shape);
+    //TFile *outputfile = new TFile(outputdir_for_shape+"/hists.root", "RECREATE");
+    TFile *outputfile = NULL;
     
     cout
     << endl
@@ -182,7 +183,8 @@ void Plotter::draw_hist(){
         hist_temp->SetName(fullhistname+"_"+current_sample);
 
         //==== rebin here
-        if(histname[i_var].Contains("secondLepton_Pt")){
+        //if(histname[i_var].Contains("secondLepton_Pt")){ //FIXME not yet
+        if(0){
           if(histname_suffix[i_cut].Contains("DiElectron")){
             double pt2array[8+1] = {0, 10, 15, 20, 30, 40, 50, 60, 120};
             hist_temp = (TH1D *)hist_temp->Rebin(8, "hnew1", pt2array);
@@ -209,7 +211,8 @@ void Plotter::draw_hist(){
           if(!hist_temp_up ) continue;
 
           //==== rebin here
-          if(histname[i_var].Contains("secondLepton_Pt")){
+          //if(histname[i_var].Contains("secondLepton_Pt")){ //FIXME not yet
+          if(0){
             if(histname_suffix[i_cut].Contains("DiElectron")){
               double pt2array[8+1] = {0, 10, 15, 20, 30, 40, 50, 60, 120};
               hist_temp_up = (TH1D *)hist_temp_up->Rebin(8, "hnew1", pt2array);
@@ -375,7 +378,7 @@ void Plotter::draw_hist(){
       
     } // END loop over variables
 
-    outputfile->Close();
+    //outputfile->Close();
     //system("rm "+thiscut_plotpath+"/hists.root");
 
 
@@ -1053,8 +1056,8 @@ void Plotter::draw_canvas(THStack *mc_stack, TH1D *mc_staterror, TH1D *mc_allerr
   mkdir(thiscut_plotpath);
   c1->SaveAs(thiscut_plotpath+"/"+histname[i_var]+histname_suffix[i_cut]+".pdf");
   c1->SaveAs(thiscut_plotpath+"/"+histname[i_var]+histname_suffix[i_cut]+".png");
-  outputf->cd();
-  c1->Write();
+  //outputf->cd();
+  //c1->Write();
   
   delete legend;
   delete c1;
@@ -1250,7 +1253,8 @@ TString Plotter::DoubleToString(double dx){
   if(units[i_var]=="int"){
     return "Events";
   }
-  else if(histname[i_var].Contains("secondLepton_Pt")){
+  //else if(histname[i_var].Contains("secondLepton_Pt")){ //FIXME not yet
+  else if(0){
     return "Events / bin";
   }
   else{

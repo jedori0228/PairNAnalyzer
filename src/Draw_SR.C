@@ -103,7 +103,7 @@ void Draw_SR(int XXX=0){
 
   //==== SS
   if(XXX==0){
-    m.samples_to_use = {"VVV", "VV", "ttbar", "DY", "WJets"};
+    m.samples_to_use = {"VVV", "ttV", "VV_incl", "ttbar", "DY", "WJets"};
 
     m.histname_suffix = {
 
@@ -115,7 +115,7 @@ void Draw_SR(int XXX=0){
   }
   //==== OS
   if(XXX==1){
-    m.samples_to_use = {"VVV", "VV", "WJets", "ttbar", "DY"};
+    m.samples_to_use = {"VVV", "ttV", "VV_incl", "WJets", "ttbar", "DY"};
 
     m.histname_suffix = {
 
@@ -204,7 +204,7 @@ void Draw_SR(int XXX=0){
     m.samples_to_use = {"chargeflip", "Xgamma", "fake_Dijet", "VV_excl", "VVV", "top", "WW_double"};
 
     m.histname_suffix = {"_DiMuon_Preselection_SS"};
-    m.PrimaryDataset = {"DoubleMuon"};
+    m.PrimaryDataset = {"SingleMuon"};
     m.LeptonChannels = {21};
     m.RegionType = {0};
     m.UseLogy = {-1};
@@ -218,7 +218,7 @@ void Draw_SR(int XXX=0){
 
     //==== PD
     if(m.histname_suffix.at(i).Contains("DiMuon")){
-      m.PrimaryDataset.push_back("DoubleMuon");
+      m.PrimaryDataset.push_back("SingleMuon");
       m.LeptonChannels.push_back(21);
     }
     else if(m.histname_suffix.at(i).Contains("DiElectron")){
@@ -441,7 +441,6 @@ void Draw_SR(int XXX=0){
   //===============================
   
   m.plotpath = ENV_PLOT_PATH+"/"+m.data_class+"/SR/";
-  m.outputdir_for_shape = ENV_PLOT_PATH+"/"+dataset+"/FilesForShapes/SR/";
   m.make_plot_directory();
   
   //==========================
