@@ -46,8 +46,9 @@ void Plotter::draw_hist(){
     MakeYAxis();
     MakeXAxis();
 
-    TString temp_suffix = histname_suffix[i_cut];
-    TString DirName = temp_suffix.Remove(0,1);
+    TString DirName = histname_suffix[i_cut];
+    //TString temp_suffix = histname_suffix[i_cut];
+    //TString DirName = temp_suffix.Remove(0,1);
 
     for(i_var = 0; i_var < histname.size(); i_var++){
 
@@ -93,7 +94,7 @@ void Plotter::draw_hist(){
         if( i_file < bkglist.size() ){
           TString tmp = bkglist[i_file];
           if(bkglist[i_file].Contains("fake") || bkglist[i_file].Contains("chargeflip")) tmp += "_"+PrimaryDataset[i_cut];
-          filepath = "./rootfiles/"+data_class+"/"+filename_prefix+"_SK"+tmp+"_dilep"+filename_suffix;
+          filepath = "./rootfiles/"+data_class+"/"+filename_prefix+"_"+tmp+filename_suffix;
           current_sample = bkglist[i_file];
         }
         //==== data for i_file = bkglist.size()
@@ -134,7 +135,7 @@ void Plotter::draw_hist(){
         if(DoDebug){
           cout
           << "filepath = " << filepath << endl
-          << "hisname = " << histname[i_var]+histname_suffix[i_cut] << endl;
+          << "hisname = " << histname[i_var]+"_"+histname_suffix[i_cut] << endl;
         }
         
         //==== get root file
@@ -165,7 +166,7 @@ void Plotter::draw_hist(){
         file->cd(DirName);
 
         //==== full histogram name
-        TString fullhistname = histname[i_var]+histname_suffix[i_cut];
+        TString fullhistname = histname[i_var]+"_"+histname_suffix[i_cut];
         
         //==== get histogram
         TH1D* hist_temp = (TH1D*)dir->Get(fullhistname);
@@ -331,7 +332,7 @@ void Plotter::draw_hist(){
 
         fill_legend(lg, hist_final);
 
-        if(histname[i_var]=="Nevents"){
+        if(histname[i_var]=="NEvent"){
           cout << "current_sample = " << current_sample << endl;
           TString alias = "";
           if(current_sample.Contains("data")) alias = "data";
@@ -355,7 +356,7 @@ void Plotter::draw_hist(){
         
       } // END loop over samples
 
-      if(histname[i_var]=="Nevents"){
+      if(histname[i_var]=="NEvent"){
         MakeTexFile(map_hist_y);
       }
 
@@ -1001,7 +1002,7 @@ void Plotter::draw_canvas(THStack *mc_stack, TH1D *mc_staterror, TH1D *mc_allerr
 
     latex_Lumi.SetTextSize(0.035);
     latex_Lumi.SetTextFont(42);
-    latex_Lumi.DrawLatex(0.72, 0.96, "35.9 fb^{-1} (13 TeV)");
+    latex_Lumi.DrawLatex(0.72, 0.96, "41.3 fb^{-1} (13 TeV)");
 
     TString str_channel = GetStringChannelRegion(LeptonChannels.at(i_cut), RegionType.at(i_cut));
     TLatex channelname;
@@ -1020,7 +1021,7 @@ void Plotter::draw_canvas(THStack *mc_stack, TH1D *mc_staterror, TH1D *mc_allerr
 
     latex_Lumi.SetTextSize(0.035);
     latex_Lumi.SetTextFont(42);
-    latex_Lumi.DrawLatex(0.72, 0.96, "35.9 fb^{-1} (13 TeV)");
+    latex_Lumi.DrawLatex(0.72, 0.96, "41.3 fb^{-1} (13 TeV)");
 
     TLatex latex_eemmem;
     latex_eemmem.SetNDC();
@@ -1054,8 +1055,8 @@ void Plotter::draw_canvas(THStack *mc_stack, TH1D *mc_staterror, TH1D *mc_allerr
   }
 
   mkdir(thiscut_plotpath);
-  c1->SaveAs(thiscut_plotpath+"/"+histname[i_var]+histname_suffix[i_cut]+".pdf");
-  c1->SaveAs(thiscut_plotpath+"/"+histname[i_var]+histname_suffix[i_cut]+".png");
+  c1->SaveAs(thiscut_plotpath+"/"+histname[i_var]+"_"+histname_suffix[i_cut]+".pdf");
+  c1->SaveAs(thiscut_plotpath+"/"+histname[i_var]+"_"+histname_suffix[i_cut]+".png");
   //outputf->cd();
   //c1->Write();
   
@@ -1412,6 +1413,8 @@ void Plotter::MakeTexFile(map< TString, TH1D * > hs){
 }
 
 TString Plotter::GetStringChannelRegion(int A, int B){
+
+  if(B==0) return "";
 
   //==== channel type
 
