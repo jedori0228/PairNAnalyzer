@@ -184,16 +184,13 @@ void Plotter::draw_hist(){
         hist_temp->SetName(fullhistname+"_"+current_sample);
 
         //==== rebin here
-        //if(histname[i_var].Contains("secondLepton_Pt")){ //FIXME not yet
+        //if(histname[i_var]=="Z_Mass" && !histname_suffix[i_cut].Contains("OnZ")){
         if(0){
-          if(histname_suffix[i_cut].Contains("DiElectron")){
-            double pt2array[8+1] = {0, 10, 15, 20, 30, 40, 50, 60, 120};
-            hist_temp = (TH1D *)hist_temp->Rebin(8, "hnew1", pt2array);
-          }
-          else{
-            double pt2array[7+1] = {0, 10, 20, 30, 40, 50, 60, 120};
-            hist_temp = (TH1D *)hist_temp->Rebin(7, "hnew1", pt2array);
-          }
+          //double pt2array[11+1] = {0, 50, 120, 200, 400, 800, 1400, 2300, 3500, 4500, 6000, 6500};
+          //hist_temp = (TH1D *)hist_temp->Rebin(11, "hnew1", pt2array);
+
+          double pt2array[24+1] = {0, 50, 120, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1200, 1400, 1600, 1800, 2000, 2300, 2500, 3000, 3500, 4000, 4500, 6000, 6500};
+          hist_temp = (TH1D *)hist_temp->Rebin(24, "hnew1", pt2array);
         }
         else{
           hist_temp->Rebin( n_rebin() );
@@ -211,21 +208,17 @@ void Plotter::draw_hist(){
           TH1D* hist_temp_up = (TH1D*)dir_up->Get(fullhistname+"_up");
           if(!hist_temp_up ) continue;
 
-          //==== rebin here
-          //if(histname[i_var].Contains("secondLepton_Pt")){ //FIXME not yet
+					//if(histname[i_var]=="Z_Mass" && !histname_suffix[i_cut].Contains("OnZ")){
           if(0){
-            if(histname_suffix[i_cut].Contains("DiElectron")){
-              double pt2array[8+1] = {0, 10, 15, 20, 30, 40, 50, 60, 120};
-              hist_temp_up = (TH1D *)hist_temp_up->Rebin(8, "hnew1", pt2array);
-            }
-            else{
-              double pt2array[7+1] = {0, 10, 20, 30, 40, 50, 60, 120};
-              hist_temp_up = (TH1D *)hist_temp_up->Rebin(7, "hnew1", pt2array);
-            }
-          }
-          else{
-            hist_temp_up->Rebin( n_rebin() );
-          }
+						//double pt2array[11+1] = {0, 50, 120, 200, 400, 800, 1400, 2300, 3500, 4500, 6000, 6500};
+						//hist_temp_up = (TH1D *)hist_temp->Rebin(11, "hnew1", pt2array);
+            double pt2array[24+1] = {0, 50, 120, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1200, 1400, 1600, 1800, 2000, 2300, 2500, 3000, 3500, 4000, 4500, 6000, 6500};
+            hist_temp = (TH1D *)hist_temp->Rebin(24, "hnew1", pt2array);
+					}
+					else{
+						hist_temp_up->Rebin( n_rebin() );
+					}
+
           //==== set X-axis range
           SetXaxisRange(hist_temp_up);
           //==== make overflows bins
@@ -783,6 +776,18 @@ void Plotter::draw_canvas(THStack *mc_stack, TH1D *mc_staterror, TH1D *mc_allerr
 
     if(drawratio.at(i_cut)) c1_up->SetLogy();
     else c1->SetLogy();
+
+    //====FIXME hotfix
+    if(histname[i_var]=="Z_Mass"){
+      if(histname_suffix[i_cut]=="SingleMuon_OS" || histname_suffix[i_cut]=="DiElectron_OS"){
+        if(drawratio.at(i_cut)){
+          c1_up->SetLogx();
+          c1_down->SetLogx();
+        }
+        else c1->SetLogx();
+      }
+    }
+
   }
   hist_empty->Draw("histsame");
   //==== hide X Label for top plot

@@ -12,8 +12,8 @@ cust_xaxis_max = 50
     #//==== Onejet
     #"m_Leadlj", "m_SubLeadlj", "m_llj",
 
-var_last = "Lepton_0_Pt"
-NewVars = ["NEvent"]
+var_last = "HT"
+NewVars = ["MT"]
 
 for filename in filenames:
 
@@ -34,9 +34,9 @@ for filename in filenames:
         newline = line.replace(var_last, NewVar)
 
         if "rebins" in filename:
-          newline = words[0]+'\t'+NewVar+'\t1\n'
+          newline = words[0]+'\t'+NewVar+'\t10\n'
         if "xaxis" in filename:
-          newline = words[0]+'\t'+NewVar+'\t-999\t-999\n'
+          newline = words[0]+'\t'+NewVar+'\t0\t500\n'
         if "yaxis" in filename:
           newline = words[0]+'\t'+NewVar+'\t1000\n'
 
