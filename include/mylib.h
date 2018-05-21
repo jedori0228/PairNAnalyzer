@@ -277,6 +277,123 @@ void AddPhantomZero(double a, TString align, int digit_int, int digit_frac){
 
 }
 
+vector<int> GetZPMassRange(int mN){
+
+  vector<int> this_masses;
+
+  if(mN==100){
+    this_masses = {
+      500, 750, 1000, 1500, 2000, 2500, 3000, 4000, 
+    };
+    return this_masses;
+  }
+  if(mN==200){
+    this_masses = {
+      500, 750, 1000, 1500, 2000, 2500, 3000, 4000, 
+    };
+    return this_masses;
+  }
+  if(mN==300){
+    this_masses = {
+      750, 1000, 1500, 2000, 2500, 3000, 4000, 
+    };
+    return this_masses;
+  }
+  if(mN==400){
+    this_masses = {
+      1000, 1500, 2000, 2500, 3000, 4000, 
+    };
+    return this_masses;
+  }
+  if(mN==500){
+    this_masses = {
+      1500, 2000, 2500, 3000, 4000, 
+    };
+    return this_masses;
+  }
+  if(mN==600){
+    this_masses = {
+      1500, 2000, 2500, 3000, 4000, 
+    };
+    return this_masses;
+  }
+  if(mN==700){
+    this_masses = {
+      1500, 2000, 2500, 3000, 4000, 
+    };
+    return this_masses;
+  }
+  if(mN==800){
+    this_masses = {
+      2000, 2500, 3000, 4000, 
+    };
+    return this_masses;
+  }
+  if(mN==900){
+    this_masses = {
+      2000, 2500, 3000, 4000, 
+    };
+    return this_masses;
+  }
+  if(mN==1000){
+    this_masses = {
+      2500, 3000, 4000, 
+    };
+    return this_masses;
+  }
+  if(mN==1100){
+    this_masses = {
+      2500, 3000, 4000, 
+    };
+    return this_masses;
+  }
+  if(mN==1200){
+    this_masses = {
+      2500, 3000, 4000, 
+    };
+    return this_masses;
+  }
+  if(mN==1300){
+    this_masses = {
+      3000, 4000, 
+    };
+    return this_masses;
+  }
+  if(mN==1400){
+    this_masses = {
+      3000, 4000, 
+    };
+    return this_masses;
+  }
+  if(mN==1500){
+    this_masses = {
+      4000, 
+    };
+    return this_masses;
+  }
+  if(mN==1600){
+    this_masses = {
+      4000, 
+    };
+    return this_masses;
+  }
+  if(mN==1700){
+    this_masses = {
+      4000, 
+    };
+    return this_masses;
+  }
+  if(mN==1800){
+    this_masses = {
+      4000, 
+    };
+    return this_masses;
+  }
+
+  return this_masses;
+
+}
+
 vector<int> GetHNMassRange(int mZP, bool useallmass=false){
 
   vector<int> this_masses;
