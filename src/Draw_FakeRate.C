@@ -127,6 +127,9 @@ void Draw_FakeRate(){
     "Muon",
   };
 
+  vector<double> AwayJetMinPts = {20, 30, 40, 60, 100, 500};
+  vector<TString> str_AwayJetMinPts = {"20", "30", "40", "60", "100", "500"};
+
   double x_1[2], y_1[2];
   x_1[0] = 5000;  y_1[0] = 1;
   x_1[1] = -5000;  y_1[1] = 1;
@@ -292,9 +295,16 @@ void Draw_FakeRate(){
 
         TString var = vars.at(it_var);
 
-        //==========================================
-        //==== MCFR for current Lepton && ID &&VAR
-        //==========================================
+        if(Lepton=="Electron"){
+          if(var=="Chi2") continue;
+        }
+        if(Lepton=="Muon"){
+          if(var=="MVANoIso") continue;
+        }
+
+        //===========================================
+        //==== MCFR for current Lepton && ID && VAR
+        //===========================================
 
         //==== For all samples in one plot
 
@@ -306,7 +316,7 @@ void Draw_FakeRate(){
         if(var.Contains("Eta")) x_min = -3.;
         if(var.Contains("MVANoIso")) x_min = -1.;
         double dx = 0.001;
-        if(var.Contains("Pt")) dx = 1.;
+        if(var=="Pt" || var=="PtCone") dx = 1.;
         dx *= double(rebins.at(it_var));
 
         //cout << var << "\t" << int((x_max-x_min)/dx) << endl;
@@ -337,7 +347,7 @@ void Draw_FakeRate(){
 
           IsMCFRFilled = true;
 
-          if(var.Contains("Pt")){
+          if(var=="Pt" || var=="PtCone"){
 
             double ptarray[9+1] = {0, 50, 100, 150, 200, 300, 500, 1000, 1500, 2000};
 
@@ -391,16 +401,14 @@ void Draw_FakeRate(){
 
         } // END Loop MCFR sample
 
-        if(!IsMCFRFilled){
-          c_MCFR_all->Close();
-          continue;
+        if(IsMCFRFilled){
+
+          c_MCFR_all->cd();
+          lg->Draw();
+
+          c_MCFR_all->SaveAs(this_dirname+"/1D_MCFR_AllSamples_"+var+".pdf");
+          c_MCFR_all->SaveAs(this_dirname+"/1D_MCFR_AllSamples_"+var+".png");
         }
-
-        c_MCFR_all->cd();
-        lg->Draw();
-
-        c_MCFR_all->SaveAs(this_dirname+"/1D_MCFR_AllSamples_"+var+".pdf");
-        c_MCFR_all->SaveAs(this_dirname+"/1D_MCFR_AllSamples_"+var+".png");
 
         c_MCFR_all->Close();
 
@@ -414,7 +422,8 @@ void Draw_FakeRate(){
         TCanvas *c_DATA_Den = new TCanvas("c_DATA_Den", "", 600, 600);
         canvas_margin(c_DATA_Den);
         TH1D *hist_DATA_Den = (TH1D *)file_DATA->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_Den_"+var);
-        if(var.Contains("Pt")){
+
+        if(var=="Pt" || var=="PtCone"){
           hist_DATA_Den = (TH1D *)hist_DATA_Den->Rebin(n_ptarray, "hnew1", ptarray);
         }
         else{
@@ -427,7 +436,7 @@ void Draw_FakeRate(){
         TCanvas *c_DATA_Num = new TCanvas("c_DATA_Num", "", 600, 600);
         canvas_margin(c_DATA_Num);
         TH1D *hist_DATA_Num = (TH1D *)file_DATA->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_Num_"+var);
-        if(var.Contains("Pt")){
+        if(var=="Pt" || var=="PtCone"){
           hist_DATA_Num = (TH1D *)hist_DATA_Num->Rebin(n_ptarray, "hnew1", ptarray);
         }
         else{
@@ -459,7 +468,7 @@ void Draw_FakeRate(){
             histtemp_Den->SetFillColor(Prompt_sample_colors.at(it_sample));
             histtemp_Den->SetLineColor(Prompt_sample_colors.at(it_sample));
 
-            if(var.Contains("Pt")){
+            if(var=="Pt" || var=="PtCone"){
               histtemp_Den = (TH1D *)histtemp_Den->Rebin(n_ptarray, "hnew1", ptarray);
             }
             else{
@@ -473,7 +482,7 @@ void Draw_FakeRate(){
             histtemp_Num->SetFillColor(Prompt_sample_colors.at(it_sample));
             histtemp_Num->SetLineColor(Prompt_sample_colors.at(it_sample));
 
-            if(var.Contains("Pt")){
+            if(var=="Pt" || var=="PtCone"){
               histtemp_Num = (TH1D *)histtemp_Num->Rebin(n_ptarray, "hnew1", ptarray);
             }
             else{
@@ -496,7 +505,7 @@ void Draw_FakeRate(){
         dummy_DATA->GetYaxis()->SetRangeUser(1., GetMaximum(dummy_DATA));
         dummy_DATA->GetYaxis()->SetTitle("Events");
         dummy_DATA->GetXaxis()->SetTitle(xtitles.at(it_var));
-        if(var.Contains("Pt")) dummy_DATA->GetXaxis()->SetRangeUser(0,200);
+        if(var=="Pt" || var=="PtCone") dummy_DATA->GetXaxis()->SetRangeUser(0,500);
         dummy_DATA->SetLineColor(0);
         dummy_DATA->Draw("hist");
 
