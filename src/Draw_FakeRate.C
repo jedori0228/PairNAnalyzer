@@ -1,0 +1,570 @@
+#include "canvas_margin.h"
+#include "mylib.h"
+
+void Draw_FakeRate(){
+
+  setTDRStyle();
+
+  gStyle->SetOptStat(0);
+
+  TH1::SetDefaultSumw2(true);
+  TH1::AddDirectory(kFALSE);
+
+  TString WORKING_DIR = getenv("PLOTTER_WORKING_DIR");
+  TString dataset = getenv("CATANVERSION");
+  TString ENV_PLOT_PATH = getenv("PLOT_PATH");
+
+  TString base_filepath = WORKING_DIR+"/rootfiles/"+dataset+"/CalcFakeRate/";
+  TString base_plotpath = ENV_PLOT_PATH+"/"+dataset+"/CalcFakeRate/";
+
+  if( !gSystem->mkdir(base_plotpath, kTRUE) ){
+    cout
+    << "###################################################" << endl
+    << "Directoy " << base_plotpath << " is created" << endl
+    << "###################################################" << endl
+    << endl;
+  }
+
+  //==== MCFR Samples
+
+  vector<TString> MCFR_samples = {
+    "QCD",
+    "WJets_MG",
+    "TT_powheg",
+  };
+  vector<TString> MCFR_alias = {
+    "QCD",
+    "W+Jets",
+    "t#bar{t}",
+  };
+  vector<Color_t> MCFR_sample_colors = {
+    kCyan,
+    kGreen,
+    kRed,
+  };
+
+  //==== Prompt MC Samples
+
+  vector<TString> Prompt_samples = {
+    "VV",
+    "TT_powheg",
+    "DYJets",
+    "WJets_MG", 
+  };
+  vector<TString> Prompt_alias = {
+    "Diboson",
+    "t#bar{t}",
+    "DY",
+    "W",
+  };
+  vector<Color_t> Prompt_sample_colors = {
+    kBlue,
+    kRed,
+    kYellow,
+    kGreen,
+  };
+
+  //==== Variables
+
+  vector<TString> Norm_vars = {
+    "W_CR_Lepton_0_Pt", "W_CR_MET", "W_CR_MT",
+    "MTcut_W_CR_Lepton_0_Pt", "MTcut_W_CR_MET", "MTcut_W_CR_MT",
+    "Z_CR_Lepton_0_Pt", "Z_CR_Lepton_1_Pt", "Z_CR_Z_Mass",
+  };
+  vector<TString> Norm_xtitles = {
+    "Leading lepton p_{T} (GeV)", "#slash{E}_{T}^{miss} (GeV)", "M_{T}(W-tagged Lepton, #slash{E}_{T}^{miss}) (GeV)",
+    "Leading lepton p_{T} (GeV)", "#slash{E}_{T}^{miss} (GeV)", "M_{T}(W-tagged Lepton, #slash{E}_{T}^{miss}) (GeV)",
+    "Leading lepton p_{T} (GeV)", "Subleading lepton p_{T} (GeV)", "m(OS) (GeV)",
+  };
+  vector<int> Norm_rebins = {
+    10, 10, 10,
+    10, 10, 10,
+    10, 10, 1,
+  };
+  vector<int> Norm_xmaxs = {
+    500, 500, 500,
+    500, 500, 500,
+    500, 500, 110,
+  };
+
+  //==== FR variables
+
+  vector<TString> vars = {
+    "Pt", "PtCone",
+    "Eta",
+    "RelIso", "MiniRelIso",
+    "dXY", "dXYSig", "dZ", "dZSig", "IP3D", "IP3DSig",
+    "Chi2", "MVANoIso",
+    "dPhi", "JetPtOverLeptonPt", "MET", "MT",
+  };
+  vector<TString> xtitles = {
+    "p_{T} (GeV)", "p_{T}^{cone} (GeV)",
+    "#eta", 
+    "RelIso", "MiniRelIso",
+    "|dXY| (cm)", "|dXYSig|", "|dZ| (cm)", "|dZSig|", "IP3D (cm)", "IP3DSig",
+    "#chi^{2}", "MVA (No iso)",
+    "#Delta#phi", "p_{T,jet}/p_{T,Lepton}", "#slash{E}_{T}^{miss} (GeV)", "M_{T}(W-tagged Lepton, #slash{E}_{T}^{miss}) (GeV)",
+  };
+  vector<int> rebins = {
+    50, 50,
+    5,
+    1, 1,
+    10, 1, 10, 1, 10, 1,
+    1, 5,
+    1, 1, 1, 1,
+  };
+  vector<double> x_maxs = {
+    2000., 2000.,
+    3.,
+    1.0, 1.0,
+    0.5, 10, 0.5, 10, 0.5, 10,
+    50, 1,
+    4, 2, 100, 50,
+  };
+
+  vector<TString> LeptonFlavours = {
+    //"Electron",
+    "Muon",
+  };
+
+  double x_1[2], y_1[2];
+  x_1[0] = 5000;  y_1[0] = 1;
+  x_1[1] = -5000;  y_1[1] = 1;
+  TGraph *g1 = new TGraph(2, x_1, y_1);
+
+  TLatex latex_CMSPriliminary, latex_Lumi;
+  latex_CMSPriliminary.SetNDC();
+  latex_Lumi.SetNDC();
+  latex_CMSPriliminary.SetTextSize(0.035);
+
+  latex_Lumi.SetTextSize(0.035);
+  latex_Lumi.SetTextFont(42);
+
+  for(unsigned int it_leptonflv=0; it_leptonflv<LeptonFlavours.size(); it_leptonflv++){
+
+    TString Lepton = LeptonFlavours.at(it_leptonflv);
+
+    vector<TString> IDs = {
+      "SUSY", "SUSYTight_VeryLoose", "SUSYTight_SUDYLooseNoIPMiniIso0p6", "SUSYTight_SUDYLooseNoIPMiniIso0p4",
+    };
+
+    vector<TString> Triggers;
+    if(Lepton=="Electron"){
+      Triggers = {"HLT_Photon25_v", "HLT_Photon33_v", "HLT_Photon50_v", "HLT_Photon75_v", "HLT_Photon90_v", "HLT_Photon120_v", "HLT_Photon150_v", "HLT_Photon175_v", "HLT_Photon200_v"};
+    }
+    if(Lepton=="Muon"){
+      Triggers = {"HLT_Mu20_v", "HLT_Mu27_v","HLT_Mu50_v"};
+    }
+
+    //==== Data pt-binning
+    vector<double> tmp_ptbinnings =     {10, 45, 55, 75, 85, 100, 150, 200, 500, 1000, 1500, 2000}; //DoublePhoton70
+    if(Lepton=="Muon") tmp_ptbinnings = {10, 35, 45, 75, 80, 100, 150, 200, 500, 1000, 1500, 2000}; //Mu50
+
+    const int n_ptarray = tmp_ptbinnings.size()-1;
+    double ptarray[n_ptarray+1];
+    for(int i=0;i<n_ptarray+1;i++) ptarray[i] = tmp_ptbinnings.at(i);
+
+    for(unsigned int it_id=0; it_id<IDs.size(); it_id++){
+
+      TString ID = IDs.at(it_id);
+
+      TString this_dirname = base_plotpath+"/"+Lepton+"_"+ID+"/";
+      gSystem->mkdir(this_dirname, kTRUE);
+
+      TString DATAPD = "SinglePhoton";
+      if(Lepton=="Muon") DATAPD = "SingleMuon";
+      TFile *file_DATA = new TFile(base_filepath+"/CalcFakeRate_data_"+DATAPD+".root");
+
+      //FIXME
+      if(Lepton=="Muon"){
+      //==== Trigger Norm Check plots
+
+      for(unsigned int it_trigger=0; it_trigger<Triggers.size(); it_trigger++){
+
+        TString trig = Triggers.at(it_trigger);
+
+        for(unsigned int it_var=0; it_var<Norm_vars.size(); it_var++){
+
+          TString var = Norm_vars.at(it_var);
+
+          TCanvas *c_norm = new TCanvas("c_norm", "", 600, 600);
+
+          TPad *c_norm_up = new TPad("c_norm_up", "", 0, 0.25, 1, 1);
+          TPad *c_norm_down = new TPad("c_norm_down", "", 0, 0, 1, 0.25);
+          canvas_margin(c_norm, c_norm_up, c_norm_down);
+
+          c_norm_up->Draw();
+          c_norm_down->Draw();
+          c_norm_up->cd();
+
+          TLegend *lg_Norm = new TLegend(0.7, 0.65, 0.95, 0.90);
+          lg_Norm->SetBorderSize(0);
+          lg_Norm->SetFillStyle(0);
+
+          TH1D *hist_DATA = (TH1D *)file_DATA->Get(Lepton+"_"+ID+"/"+ID+"_TriggerNorm_"+trig+"_"+var);
+          hist_DATA->Rebin(Norm_rebins.at(it_var));
+
+          lg_Norm->AddEntry(hist_DATA, "Data", "pe");
+          for(unsigned int it_sample=0; it_sample<Prompt_samples.size(); it_sample++){
+            int ri = Prompt_samples.size()-1-it_sample;
+            TH1D *histlg = new TH1D("hist_dummy_"+Prompt_samples.at(ri),"",1, 0., 1.);
+            histlg->SetFillColor(Prompt_sample_colors.at(ri));
+            histlg->SetLineColor(Prompt_sample_colors.at(ri));
+            lg_Norm->AddEntry(histlg, Prompt_alias.at(ri) ,"f");
+          }
+
+          TH1D *dummy = (TH1D *)hist_DATA->Clone();
+          hist_axis(dummy);
+          dummy->GetYaxis()->SetRangeUser(1., GetMaximum(dummy));
+          dummy->GetYaxis()->SetTitle("Events");
+          if(!( var.Contains("Z_Mass") )) dummy->GetXaxis()->SetRangeUser(0,Norm_xmaxs.at(it_var));
+          dummy->SetLineColor(0);
+          dummy->Draw("hist");
+
+          //==== Stack MC
+          THStack *stack_bkgd = new THStack("stack_bkgd", "");
+          for(unsigned int it_sample=0; it_sample<Prompt_samples.size(); it_sample++){
+            TFile *filetemp = new TFile(base_filepath+"/CalcFakeRate_"+Prompt_samples.at(it_sample)+".root");
+            TH1D *histtemp = (TH1D *)filetemp->Get(Lepton+"_"+ID+"/"+ID+"_TriggerNorm_"+trig+"_"+var);
+
+            if(histtemp){
+              histtemp->Rebin(Norm_rebins.at(it_var));
+              histtemp->SetFillColor(Prompt_sample_colors.at(it_sample));
+              histtemp->SetLineColor(Prompt_sample_colors.at(it_sample));
+              stack_bkgd->Add(histtemp);
+            }
+
+            filetemp->Close();
+            delete filetemp;
+          }
+
+          stack_bkgd->Draw("histsame");
+          TH1D *hist_bkgd = (TH1D *)stack_bkgd->GetStack()->Last();
+
+          hist_DATA->SetMarkerStyle(20);
+          hist_DATA->SetMarkerSize(1.6);
+          hist_DATA->SetMarkerColor(kBlack);
+          hist_DATA->SetLineColor(kBlack);
+          hist_DATA->Draw("psame");
+
+          double y_max = max( GetMaximum(hist_DATA), GetMaximum(hist_bkgd) );
+          dummy->GetYaxis()->SetRangeUser(1., 5.*y_max);
+
+          c_norm_down->cd();
+
+          TH1D *hist_ratio = (TH1D *)hist_DATA->Clone();
+          hist_ratio->Divide(hist_bkgd);
+          hist_ratio->SetLineWidth(2.0);
+          hist_ratio->SetMarkerSize(0.);
+          hist_ratio->SetLineColor(kBlack);
+          hist_ratio->Draw("p");
+          hist_ratio->GetYaxis()->SetRangeUser(0,2.0);
+          hist_ratio->SetNdivisions(504,"Y");
+          hist_ratio->GetYaxis()->SetRangeUser(0,1.9);
+          hist_ratio->GetXaxis()->SetTitle(Norm_xtitles.at(it_var));
+          if(!( var.Contains("Z_Mass") )) hist_ratio->GetXaxis()->SetRangeUser(0,Norm_xmaxs.at(it_var));
+
+          hist_axis(dummy, hist_ratio);
+
+          g1->Draw("same");
+
+          c_norm_up->SetLogy();
+
+          c_norm->cd();
+          latex_CMSPriliminary.DrawLatex(0.15, 0.96, "#font[62]{CMS} #font[42]{#it{#scale[0.8]{Preliminary}}}");
+          latex_Lumi.DrawLatex(0.88, 0.96, "(2017)");
+          latex_Lumi.DrawLatex(0.50, 0.96, "#font[62]{"+trig+"}");
+          lg_Norm->Draw();
+
+          c_norm->SaveAs(this_dirname+"/TriggerNorm_"+trig+"_"+var+".pdf");
+          c_norm->SaveAs(this_dirname+"/TriggerNorm_"+trig+"_"+var+".png");
+          c_norm->Close();
+        
+        }
+
+
+      }
+      } //FIXME
+
+      //==== Run over single varialbes, and get Fake Rates
+
+      for(unsigned int it_var=0; it_var<vars.size(); it_var++){
+
+        TString var = vars.at(it_var);
+
+        //==========================================
+        //==== MCFR for current Lepton && ID &&VAR
+        //==========================================
+
+        //==== For all samples in one plot
+
+        TCanvas *c_MCFR_all = new TCanvas("c_MCFR_all", "", 600, 600);
+        canvas_margin(c_MCFR_all);
+
+        double x_max = x_maxs.at(it_var);
+        double x_min = 0;
+        if(var.Contains("Eta")) x_min = -3.;
+        if(var.Contains("MVANoIso")) x_min = -1.;
+        double dx = 0.001;
+        if(var.Contains("Pt")) dx = 1.;
+        dx *= double(rebins.at(it_var));
+
+        //cout << var << "\t" << int((x_max-x_min)/dx) << endl;
+
+        TH1D *dummy_all = new TH1D("dummy_all", "", int((x_max-x_min)/dx), x_min, x_max);
+        hist_axis(dummy_all);
+        dummy_all->GetYaxis()->SetRangeUser(0,1.0);
+        dummy_all->GetYaxis()->SetTitle("FR");
+        dummy_all->GetXaxis()->SetTitle(xtitles.at(it_var));
+        dummy_all->Draw("hist");
+
+        TLegend *lg = new TLegend(0.7, 0.65, 0.95, 0.90);
+        lg->SetBorderSize(0);
+        lg->SetFillStyle(0);
+
+        bool IsMCFRFilled = false;
+
+        for(unsigned int it_sample=0; it_sample<MCFR_samples.size(); it_sample++){
+
+          TString sample = MCFR_samples.at(it_sample);
+
+          TFile *file_MC = new TFile(base_filepath+"/CalcFakeRate_"+sample+".root");
+
+          TH1D *hist_Den = (TH1D *)file_MC->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_MCFR_Den_"+var);
+          TH1D *hist_Num = (TH1D *)file_MC->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_MCFR_Num_"+var);
+
+          if(!hist_Den) continue;
+
+          IsMCFRFilled = true;
+
+          if(var.Contains("Pt")){
+
+            double ptarray[9+1] = {0, 50, 100, 150, 200, 300, 500, 1000, 1500, 2000};
+
+            hist_Den = (TH1D *)hist_Den->Rebin(9, "hnew1", ptarray);
+            hist_Num = (TH1D *)hist_Num->Rebin(9, "hnew1", ptarray);
+
+          }
+          else{
+            hist_Den->Rebin(rebins.at(it_var));
+            hist_Num->Rebin(rebins.at(it_var));
+          }
+
+          //==== Den/Num distributions
+
+          TCanvas *c_Dist = new TCanvas("c_Dist", "", 600, 600);
+          canvas_margin(c_Dist);
+          c_Dist->cd();
+
+          TH1D *dummy = new TH1D("dummy", "", int((x_max-x_min)/dx), x_min, x_max);
+          hist_axis(dummy);
+          dummy->GetYaxis()->SetRangeUser(0,1.0);
+          dummy->GetYaxis()->SetTitle("FR");
+          //c_Dist->SetLogx();
+          dummy->GetXaxis()->SetTitle(xtitles.at(it_var));
+          dummy->Draw("hist");
+
+          hist_Den->SetLineColor(kBlue);
+          hist_Num->SetLineColor(kRed);
+
+          hist_Den->Draw("histsame");
+          hist_Num->Draw("histsame");
+
+          double y_max = max( GetMaximum(hist_Den), GetMaximum(hist_Num) )*1.2;
+          dummy->GetYaxis()->SetRangeUser(0, y_max);
+
+          c_Dist->SaveAs(this_dirname+"/Dist_"+sample+"_"+var+".pdf");
+          c_Dist->SaveAs(this_dirname+"/Dist_"+sample+"_"+var+".png");
+
+          c_Dist->Close();
+
+          //==== Fake Rate
+
+          c_MCFR_all->cd();
+          TEfficiency *Eff_FR = new TEfficiency(*hist_Num, *hist_Den);
+          TGraphAsymmErrors *gr_FR = Eff_FR->CreateGraph();
+          gr_FR->SetMarkerSize(0);
+          gr_FR->SetLineWidth(3);
+          gr_FR->SetLineColor(MCFR_sample_colors.at(it_sample));
+          gr_FR->Draw("lsame");
+          lg->AddEntry(gr_FR, MCFR_alias.at(it_sample), "l");
+
+        } // END Loop MCFR sample
+
+        if(!IsMCFRFilled){
+          c_MCFR_all->Close();
+          continue;
+        }
+
+        c_MCFR_all->cd();
+        lg->Draw();
+
+        c_MCFR_all->SaveAs(this_dirname+"/1D_MCFR_AllSamples_"+var+".pdf");
+        c_MCFR_all->SaveAs(this_dirname+"/1D_MCFR_AllSamples_"+var+".png");
+
+        c_MCFR_all->Close();
+
+        //=====================
+        //==== Now using DATA
+        //=====================
+
+        TCanvas *c_FR = new TCanvas("c_FR", "", 600, 600);
+        canvas_margin(c_FR);
+
+        TCanvas *c_DATA_Den = new TCanvas("c_DATA_Den", "", 600, 600);
+        canvas_margin(c_DATA_Den);
+        TH1D *hist_DATA_Den = (TH1D *)file_DATA->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_Den_"+var);
+        if(var.Contains("Pt")){
+          hist_DATA_Den = (TH1D *)hist_DATA_Den->Rebin(n_ptarray, "hnew1", ptarray);
+        }
+        else{
+          hist_DATA_Den->Rebin(rebins.at(it_var));
+        }
+        TH1D *hist_DATA_Den_Subtracted = (TH1D *)hist_DATA_Den->Clone();
+        THStack *stack_bkgd_Den = new THStack("stack_bkgd_Den", "");
+
+
+        TCanvas *c_DATA_Num = new TCanvas("c_DATA_Num", "", 600, 600);
+        canvas_margin(c_DATA_Num);
+        TH1D *hist_DATA_Num = (TH1D *)file_DATA->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_Num_"+var);
+        if(var.Contains("Pt")){
+          hist_DATA_Num = (TH1D *)hist_DATA_Num->Rebin(n_ptarray, "hnew1", ptarray);
+        }
+        else{
+          hist_DATA_Num->Rebin(rebins.at(it_var));
+        }
+        TH1D *hist_DATA_Num_Subtracted = (TH1D *)hist_DATA_Num->Clone();
+        THStack *stack_bkgd_Num = new THStack("stack_bkgd_Num", "");
+
+        TLegend *lg_DATA = new TLegend(0.7, 0.65, 0.95, 0.90);
+        lg_DATA->SetBorderSize(0);
+        lg_DATA->SetFillStyle(0);
+
+        lg_DATA->AddEntry(hist_DATA_Den, "Data", "pe");
+        for(unsigned int it_sample=0; it_sample<Prompt_samples.size(); it_sample++){
+          int ri = Prompt_samples.size()-1-it_sample;
+          TH1D *histlg = new TH1D("histlg"+Prompt_samples.at(ri),"", 1, 0., 1.);
+          histlg->SetFillColor(Prompt_sample_colors.at(ri));
+          histlg->SetLineColor(Prompt_sample_colors.at(ri));
+          lg_DATA->AddEntry(histlg, Prompt_alias.at(ri) ,"f");
+        }
+
+
+        for(unsigned int it_sample=0; it_sample<Prompt_samples.size(); it_sample++){
+          TFile *filetemp = new TFile(base_filepath+"/CalcFakeRate_"+Prompt_samples.at(it_sample)+".root");
+          TH1D *histtemp_Den = (TH1D *)filetemp->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_Den_"+var);
+          TH1D *histtemp_Num = (TH1D *)filetemp->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_Den_"+var);
+
+          if(histtemp_Den){
+            histtemp_Den->SetFillColor(Prompt_sample_colors.at(it_sample));
+            histtemp_Den->SetLineColor(Prompt_sample_colors.at(it_sample));
+
+            if(var.Contains("Pt")){
+              histtemp_Den = (TH1D *)histtemp_Den->Rebin(n_ptarray, "hnew1", ptarray);
+            }
+            else{
+              histtemp_Den->Rebin(rebins.at(it_var));
+            }
+
+            hist_DATA_Den_Subtracted->Add(histtemp_Den, -1.);
+            stack_bkgd_Den->Add(histtemp_Den);
+          }
+          if(histtemp_Num){
+            histtemp_Num->SetFillColor(Prompt_sample_colors.at(it_sample));
+            histtemp_Num->SetLineColor(Prompt_sample_colors.at(it_sample));
+
+            if(var.Contains("Pt")){
+              histtemp_Num = (TH1D *)histtemp_Num->Rebin(n_ptarray, "hnew1", ptarray);
+            }
+            else{
+              histtemp_Num->Rebin(rebins.at(it_var));
+            }
+
+            hist_DATA_Num_Subtracted->Add(histtemp_Num, -1.);
+            stack_bkgd_Num->Add(histtemp_Num);
+          }
+
+          filetemp->Close();
+          delete filetemp;
+        }
+
+        //==== Den disbrib
+
+        c_DATA_Den->cd();
+        TH1D *dummy_DATA = new TH1D("dummy_DATA", "", int((x_max-x_min)/dx), x_min, x_max);
+        hist_axis(dummy_DATA);
+        dummy_DATA->GetYaxis()->SetRangeUser(1., GetMaximum(dummy_DATA));
+        dummy_DATA->GetYaxis()->SetTitle("Events");
+        dummy_DATA->GetXaxis()->SetTitle(xtitles.at(it_var));
+        if(var.Contains("Pt")) dummy_DATA->GetXaxis()->SetRangeUser(0,200);
+        dummy_DATA->SetLineColor(0);
+        dummy_DATA->Draw("hist");
+
+        stack_bkgd_Den->Draw("histsame");
+
+        hist_DATA_Den->SetMarkerStyle(20);
+        hist_DATA_Den->SetMarkerSize(1.6);
+        hist_DATA_Den->SetMarkerColor(kBlack);
+        hist_DATA_Den->SetLineColor(kBlack);
+        hist_DATA_Den->Draw("psame");
+
+        TH1D *hist_bkgd_Den = (TH1D *)stack_bkgd_Den->GetStack()->Last();
+        double y_max = max( GetMaximum(hist_DATA_Den), GetMaximum(hist_bkgd_Den) );
+        dummy_DATA->GetYaxis()->SetRangeUser(1., 5.*y_max);
+
+        lg_DATA->Draw();
+        c_DATA_Den->SetLogy();
+        c_DATA_Den->SaveAs(this_dirname+"/1D_DATA_Dist_Den_"+var+".pdf");
+        c_DATA_Den->SaveAs(this_dirname+"/1D_DATA_Dist_Den_"+var+".png");
+        c_DATA_Den->Close();
+
+        //==== Num distrib
+
+        c_DATA_Num->cd();
+        dummy_DATA->Draw("hist");
+
+        stack_bkgd_Num->Draw("histsame");
+
+        hist_DATA_Num->SetMarkerStyle(20);
+        hist_DATA_Num->SetMarkerSize(1.6);
+        hist_DATA_Num->SetMarkerColor(kBlack);
+        hist_DATA_Num->SetLineColor(kBlack);
+        hist_DATA_Num->Draw("psame");
+
+        TH1D *hist_bkgd_Num = (TH1D *)stack_bkgd_Num->GetStack()->Last();
+        y_max = max( GetMaximum(hist_DATA_Num), GetMaximum(hist_bkgd_Num) );
+        dummy_DATA->GetYaxis()->SetRangeUser(1., 5.*y_max);
+
+        lg_DATA->Draw();
+        c_DATA_Num->SetLogy();
+        c_DATA_Num->SaveAs(this_dirname+"/1D_DATA_Dist_Num_"+var+".pdf");
+        c_DATA_Num->SaveAs(this_dirname+"/1D_DATA_Dist_Num_"+var+".png");
+        c_DATA_Num->Close();
+
+        //==== FR
+
+        c_FR->cd();
+        dummy_DATA->GetYaxis()->SetRangeUser(0,1.);
+        dummy_DATA->GetYaxis()->SetTitle("FR");
+        dummy_DATA->Draw("hist");
+
+        TEfficiency *Eff_FR = new TEfficiency(*hist_DATA_Num_Subtracted, *hist_DATA_Den_Subtracted);
+        TGraphAsymmErrors *gr_FR = Eff_FR->CreateGraph();
+        gr_FR->SetMarkerSize(0);
+        gr_FR->SetLineWidth(3);
+        gr_FR->Draw("lsame");
+
+        c_FR->SaveAs(this_dirname+"/1D_DATA_FR_"+var+".pdf");
+        c_FR->SaveAs(this_dirname+"/1D_DATA_FR_"+var+".png");
+        c_FR->Close();
+
+
+
+      } // END Loop variable
+
+    } // END Loop ID
+
+
+  }
+
+}

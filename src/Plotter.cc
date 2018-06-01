@@ -779,7 +779,7 @@ void Plotter::draw_canvas(THStack *mc_stack, TH1D *mc_staterror, TH1D *mc_allerr
 
     //====FIXME hotfix
     if(histname[i_var]=="Z_Mass"){
-      if(histname_suffix[i_cut]=="SingleMuon_OS" || histname_suffix[i_cut]=="DiElectron_OS"){
+      if(histname_suffix[i_cut].Contains("OS") && !histname_suffix[i_cut].Contains("OnZ")){
         if(drawratio.at(i_cut)){
           c1_up->SetLogx();
           c1_down->SetLogx();
