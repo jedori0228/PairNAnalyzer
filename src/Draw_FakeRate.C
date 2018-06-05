@@ -127,8 +127,7 @@ void Draw_FakeRate(){
     "Muon",
   };
 
-  vector<double> AwayJetMinPts = {20, 30, 40, 60, 100, 500};
-  vector<TString> str_AwayJetMinPts = {"20", "30", "40", "60", "100", "500"};
+  vector<TString> AwayJetMinPts = {"20", "30", "40", "60", "100", "500"};
 
   double x_1[2], y_1[2];
   x_1[0] = 5000;  y_1[0] = 1;
@@ -416,158 +415,163 @@ void Draw_FakeRate(){
         //==== Now using DATA
         //=====================
 
-        TCanvas *c_FR = new TCanvas("c_FR", "", 600, 600);
-        canvas_margin(c_FR);
+        for(unsigned int it_jpt=0; it_jpt<AwayJetMinPts.size(); it_jpt++){
 
-        TCanvas *c_DATA_Den = new TCanvas("c_DATA_Den", "", 600, 600);
-        canvas_margin(c_DATA_Den);
-        TH1D *hist_DATA_Den = (TH1D *)file_DATA->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_Den_"+var);
+          TString this_AwayJetPt = AwayJetMinPts.at(it_jpt);
 
-        if(var=="Pt" || var=="PtCone"){
-          hist_DATA_Den = (TH1D *)hist_DATA_Den->Rebin(n_ptarray, "hnew1", ptarray);
-        }
-        else{
-          hist_DATA_Den->Rebin(rebins.at(it_var));
-        }
-        TH1D *hist_DATA_Den_Subtracted = (TH1D *)hist_DATA_Den->Clone();
-        THStack *stack_bkgd_Den = new THStack("stack_bkgd_Den", "");
+          TCanvas *c_FR = new TCanvas("c_FR", "", 600, 600);
+          canvas_margin(c_FR);
 
+          TCanvas *c_DATA_Den = new TCanvas("c_DATA_Den", "", 600, 600);
+          canvas_margin(c_DATA_Den);
+          TH1D *hist_DATA_Den = (TH1D *)file_DATA->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_AwayJetPt"+this_AwayJetPt+"_Den_"+var);
 
-        TCanvas *c_DATA_Num = new TCanvas("c_DATA_Num", "", 600, 600);
-        canvas_margin(c_DATA_Num);
-        TH1D *hist_DATA_Num = (TH1D *)file_DATA->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_Num_"+var);
-        if(var=="Pt" || var=="PtCone"){
-          hist_DATA_Num = (TH1D *)hist_DATA_Num->Rebin(n_ptarray, "hnew1", ptarray);
-        }
-        else{
-          hist_DATA_Num->Rebin(rebins.at(it_var));
-        }
-        TH1D *hist_DATA_Num_Subtracted = (TH1D *)hist_DATA_Num->Clone();
-        THStack *stack_bkgd_Num = new THStack("stack_bkgd_Num", "");
-
-        TLegend *lg_DATA = new TLegend(0.7, 0.65, 0.95, 0.90);
-        lg_DATA->SetBorderSize(0);
-        lg_DATA->SetFillStyle(0);
-
-        lg_DATA->AddEntry(hist_DATA_Den, "Data", "pe");
-        for(unsigned int it_sample=0; it_sample<Prompt_samples.size(); it_sample++){
-          int ri = Prompt_samples.size()-1-it_sample;
-          TH1D *histlg = new TH1D("histlg"+Prompt_samples.at(ri),"", 1, 0., 1.);
-          histlg->SetFillColor(Prompt_sample_colors.at(ri));
-          histlg->SetLineColor(Prompt_sample_colors.at(ri));
-          lg_DATA->AddEntry(histlg, Prompt_alias.at(ri) ,"f");
-        }
-
-
-        for(unsigned int it_sample=0; it_sample<Prompt_samples.size(); it_sample++){
-          TFile *filetemp = new TFile(base_filepath+"/CalcFakeRate_"+Prompt_samples.at(it_sample)+".root");
-          TH1D *histtemp_Den = (TH1D *)filetemp->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_Den_"+var);
-          TH1D *histtemp_Num = (TH1D *)filetemp->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_Den_"+var);
-
-          if(histtemp_Den){
-            histtemp_Den->SetFillColor(Prompt_sample_colors.at(it_sample));
-            histtemp_Den->SetLineColor(Prompt_sample_colors.at(it_sample));
-
-            if(var=="Pt" || var=="PtCone"){
-              histtemp_Den = (TH1D *)histtemp_Den->Rebin(n_ptarray, "hnew1", ptarray);
-            }
-            else{
-              histtemp_Den->Rebin(rebins.at(it_var));
-            }
-
-            hist_DATA_Den_Subtracted->Add(histtemp_Den, -1.);
-            stack_bkgd_Den->Add(histtemp_Den);
+          if(var=="Pt" || var=="PtCone"){
+            hist_DATA_Den = (TH1D *)hist_DATA_Den->Rebin(n_ptarray, "hnew1", ptarray);
           }
-          if(histtemp_Num){
-            histtemp_Num->SetFillColor(Prompt_sample_colors.at(it_sample));
-            histtemp_Num->SetLineColor(Prompt_sample_colors.at(it_sample));
+          else{
+            hist_DATA_Den->Rebin(rebins.at(it_var));
+          }
+          TH1D *hist_DATA_Den_Subtracted = (TH1D *)hist_DATA_Den->Clone();
+          THStack *stack_bkgd_Den = new THStack("stack_bkgd_Den", "");
 
-            if(var=="Pt" || var=="PtCone"){
-              histtemp_Num = (TH1D *)histtemp_Num->Rebin(n_ptarray, "hnew1", ptarray);
-            }
-            else{
-              histtemp_Num->Rebin(rebins.at(it_var));
-            }
 
-            hist_DATA_Num_Subtracted->Add(histtemp_Num, -1.);
-            stack_bkgd_Num->Add(histtemp_Num);
+          TCanvas *c_DATA_Num = new TCanvas("c_DATA_Num", "", 600, 600);
+          canvas_margin(c_DATA_Num);
+          TH1D *hist_DATA_Num = (TH1D *)file_DATA->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_AwayJetPt"+this_AwayJetPt+"_Num_"+var);
+          if(var=="Pt" || var=="PtCone"){
+            hist_DATA_Num = (TH1D *)hist_DATA_Num->Rebin(n_ptarray, "hnew1", ptarray);
+          }
+          else{
+            hist_DATA_Num->Rebin(rebins.at(it_var));
+          }
+          TH1D *hist_DATA_Num_Subtracted = (TH1D *)hist_DATA_Num->Clone();
+          THStack *stack_bkgd_Num = new THStack("stack_bkgd_Num", "");
+
+          TLegend *lg_DATA = new TLegend(0.7, 0.65, 0.95, 0.90);
+          lg_DATA->SetBorderSize(0);
+          lg_DATA->SetFillStyle(0);
+
+          lg_DATA->AddEntry(hist_DATA_Den, "Data", "pe");
+          for(unsigned int it_sample=0; it_sample<Prompt_samples.size(); it_sample++){
+            int ri = Prompt_samples.size()-1-it_sample;
+            TH1D *histlg = new TH1D("histlg"+Prompt_samples.at(ri),"", 1, 0., 1.);
+            histlg->SetFillColor(Prompt_sample_colors.at(ri));
+            histlg->SetLineColor(Prompt_sample_colors.at(ri));
+            lg_DATA->AddEntry(histlg, Prompt_alias.at(ri) ,"f");
           }
 
-          filetemp->Close();
-          delete filetemp;
-        }
 
-        //==== Den disbrib
+          for(unsigned int it_sample=0; it_sample<Prompt_samples.size(); it_sample++){
+            TFile *filetemp = new TFile(base_filepath+"/CalcFakeRate_"+Prompt_samples.at(it_sample)+".root");
+            TH1D *histtemp_Den = (TH1D *)filetemp->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_AwayJetPt"+this_AwayJetPt+"_Den_"+var);
+            TH1D *histtemp_Num = (TH1D *)filetemp->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_AwayJetPt"+this_AwayJetPt+"_Den_"+var);
 
-        c_DATA_Den->cd();
-        TH1D *dummy_DATA = new TH1D("dummy_DATA", "", int((x_max-x_min)/dx), x_min, x_max);
-        hist_axis(dummy_DATA);
-        dummy_DATA->GetYaxis()->SetRangeUser(1., GetMaximum(dummy_DATA));
-        dummy_DATA->GetYaxis()->SetTitle("Events");
-        dummy_DATA->GetXaxis()->SetTitle(xtitles.at(it_var));
-        if(var=="Pt" || var=="PtCone") dummy_DATA->GetXaxis()->SetRangeUser(0,500);
-        dummy_DATA->SetLineColor(0);
-        dummy_DATA->Draw("hist");
+            if(histtemp_Den){
+              histtemp_Den->SetFillColor(Prompt_sample_colors.at(it_sample));
+              histtemp_Den->SetLineColor(Prompt_sample_colors.at(it_sample));
 
-        stack_bkgd_Den->Draw("histsame");
+              if(var=="Pt" || var=="PtCone"){
+                histtemp_Den = (TH1D *)histtemp_Den->Rebin(n_ptarray, "hnew1", ptarray);
+              }
+              else{
+                histtemp_Den->Rebin(rebins.at(it_var));
+              }
 
-        hist_DATA_Den->SetMarkerStyle(20);
-        hist_DATA_Den->SetMarkerSize(1.6);
-        hist_DATA_Den->SetMarkerColor(kBlack);
-        hist_DATA_Den->SetLineColor(kBlack);
-        hist_DATA_Den->Draw("psame");
+              hist_DATA_Den_Subtracted->Add(histtemp_Den, -1.);
+              stack_bkgd_Den->Add(histtemp_Den);
+            }
+            if(histtemp_Num){
+              histtemp_Num->SetFillColor(Prompt_sample_colors.at(it_sample));
+              histtemp_Num->SetLineColor(Prompt_sample_colors.at(it_sample));
 
-        TH1D *hist_bkgd_Den = (TH1D *)stack_bkgd_Den->GetStack()->Last();
-        double y_max = max( GetMaximum(hist_DATA_Den), GetMaximum(hist_bkgd_Den) );
-        dummy_DATA->GetYaxis()->SetRangeUser(1., 5.*y_max);
+              if(var=="Pt" || var=="PtCone"){
+                histtemp_Num = (TH1D *)histtemp_Num->Rebin(n_ptarray, "hnew1", ptarray);
+              }
+              else{
+                histtemp_Num->Rebin(rebins.at(it_var));
+              }
 
-        lg_DATA->Draw();
-        c_DATA_Den->SetLogy();
-        c_DATA_Den->SaveAs(this_dirname+"/1D_DATA_Dist_Den_"+var+".pdf");
-        c_DATA_Den->SaveAs(this_dirname+"/1D_DATA_Dist_Den_"+var+".png");
-        c_DATA_Den->Close();
+              hist_DATA_Num_Subtracted->Add(histtemp_Num, -1.);
+              stack_bkgd_Num->Add(histtemp_Num);
+            }
 
-        //==== Num distrib
+            filetemp->Close();
+            delete filetemp;
+          }
 
-        c_DATA_Num->cd();
-        dummy_DATA->Draw("hist");
+          //==== Den disbrib
 
-        stack_bkgd_Num->Draw("histsame");
+          c_DATA_Den->cd();
+          TH1D *dummy_DATA = new TH1D("dummy_DATA", "", int((x_max-x_min)/dx), x_min, x_max);
+          hist_axis(dummy_DATA);
+          dummy_DATA->GetYaxis()->SetRangeUser(1., GetMaximum(dummy_DATA));
+          dummy_DATA->GetYaxis()->SetTitle("Events");
+          dummy_DATA->GetXaxis()->SetTitle(xtitles.at(it_var));
+          if(var=="Pt" || var=="PtCone") dummy_DATA->GetXaxis()->SetRangeUser(0,500);
+          dummy_DATA->SetLineColor(0);
+          dummy_DATA->Draw("hist");
 
-        hist_DATA_Num->SetMarkerStyle(20);
-        hist_DATA_Num->SetMarkerSize(1.6);
-        hist_DATA_Num->SetMarkerColor(kBlack);
-        hist_DATA_Num->SetLineColor(kBlack);
-        hist_DATA_Num->Draw("psame");
+          stack_bkgd_Den->Draw("histsame");
 
-        TH1D *hist_bkgd_Num = (TH1D *)stack_bkgd_Num->GetStack()->Last();
-        y_max = max( GetMaximum(hist_DATA_Num), GetMaximum(hist_bkgd_Num) );
-        dummy_DATA->GetYaxis()->SetRangeUser(1., 5.*y_max);
+          hist_DATA_Den->SetMarkerStyle(20);
+          hist_DATA_Den->SetMarkerSize(1.6);
+          hist_DATA_Den->SetMarkerColor(kBlack);
+          hist_DATA_Den->SetLineColor(kBlack);
+          hist_DATA_Den->Draw("psame");
 
-        lg_DATA->Draw();
-        c_DATA_Num->SetLogy();
-        c_DATA_Num->SaveAs(this_dirname+"/1D_DATA_Dist_Num_"+var+".pdf");
-        c_DATA_Num->SaveAs(this_dirname+"/1D_DATA_Dist_Num_"+var+".png");
-        c_DATA_Num->Close();
+          TH1D *hist_bkgd_Den = (TH1D *)stack_bkgd_Den->GetStack()->Last();
+          double y_max = max( GetMaximum(hist_DATA_Den), GetMaximum(hist_bkgd_Den) );
+          dummy_DATA->GetYaxis()->SetRangeUser(1., 5.*y_max);
 
-        //==== FR
+          lg_DATA->Draw();
+          c_DATA_Den->SetLogy();
+          c_DATA_Den->SaveAs(this_dirname+"/1D_DATA_AwayJetPt"+this_AwayJetPt+"_Dist_Den_"+var+".pdf");
+          c_DATA_Den->SaveAs(this_dirname+"/1D_DATA_AwayJetPt"+this_AwayJetPt+"_Dist_Den_"+var+".png");
+          c_DATA_Den->Close();
 
-        c_FR->cd();
-        dummy_DATA->GetYaxis()->SetRangeUser(0,1.);
-        dummy_DATA->GetYaxis()->SetTitle("FR");
-        dummy_DATA->Draw("hist");
+          //==== Num distrib
 
-        TEfficiency *Eff_FR = new TEfficiency(*hist_DATA_Num_Subtracted, *hist_DATA_Den_Subtracted);
-        TGraphAsymmErrors *gr_FR = Eff_FR->CreateGraph();
-        gr_FR->SetMarkerSize(0);
-        gr_FR->SetLineWidth(3);
-        gr_FR->Draw("lsame");
+          c_DATA_Num->cd();
+          dummy_DATA->Draw("hist");
 
-        c_FR->SaveAs(this_dirname+"/1D_DATA_FR_"+var+".pdf");
-        c_FR->SaveAs(this_dirname+"/1D_DATA_FR_"+var+".png");
-        c_FR->Close();
+          stack_bkgd_Num->Draw("histsame");
+
+          hist_DATA_Num->SetMarkerStyle(20);
+          hist_DATA_Num->SetMarkerSize(1.6);
+          hist_DATA_Num->SetMarkerColor(kBlack);
+          hist_DATA_Num->SetLineColor(kBlack);
+          hist_DATA_Num->Draw("psame");
+
+          TH1D *hist_bkgd_Num = (TH1D *)stack_bkgd_Num->GetStack()->Last();
+          y_max = max( GetMaximum(hist_DATA_Num), GetMaximum(hist_bkgd_Num) );
+          dummy_DATA->GetYaxis()->SetRangeUser(1., 5.*y_max);
+
+          lg_DATA->Draw();
+          c_DATA_Num->SetLogy();
+          c_DATA_Num->SaveAs(this_dirname+"/1D_DATA_AwayJetPt"+this_AwayJetPt+"_Dist_Num_"+var+".pdf");
+          c_DATA_Num->SaveAs(this_dirname+"/1D_DATA_AwayJetPt"+this_AwayJetPt+"_Dist_Num_"+var+".png");
+          c_DATA_Num->Close();
+
+          //==== FR
+
+          c_FR->cd();
+          dummy_DATA->GetYaxis()->SetRangeUser(0,1.);
+          dummy_DATA->GetYaxis()->SetTitle("FR");
+          dummy_DATA->Draw("hist");
+
+          TEfficiency *Eff_FR = new TEfficiency(*hist_DATA_Num_Subtracted, *hist_DATA_Den_Subtracted);
+          TGraphAsymmErrors *gr_FR = Eff_FR->CreateGraph();
+          gr_FR->SetMarkerSize(0);
+          gr_FR->SetLineWidth(3);
+          gr_FR->Draw("lsame");
+
+          c_FR->SaveAs(this_dirname+"/1D_DATA_AwayJetPt"+this_AwayJetPt+"_FR_"+var+".pdf");
+          c_FR->SaveAs(this_dirname+"/1D_DATA_AwayJetPt"+this_AwayJetPt+"_FR_"+var+".png");
+          c_FR->Close();
 
 
+        } // END Loop AwayJet Pt
 
       } // END Loop variable
 
