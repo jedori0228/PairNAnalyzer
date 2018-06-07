@@ -14,8 +14,10 @@ void Draw_FakeRate(){
   TString dataset = getenv("CATANVERSION");
   TString ENV_PLOT_PATH = getenv("PLOT_PATH");
 
-  TString base_filepath = WORKING_DIR+"/rootfiles/"+dataset+"/CalcFakeRate/";
-  TString base_plotpath = ENV_PLOT_PATH+"/"+dataset+"/CalcFakeRate/";
+  TString OutPutSubDir = "ElectronPOGVetoAsHNPairLoose_Iso0p6";
+
+  TString base_filepath = WORKING_DIR+"/rootfiles/"+dataset+"/CalcFakeRate/"+OutPutSubDir+"/";
+  TString base_plotpath = ENV_PLOT_PATH+"/"+dataset+"/CalcFakeRate/"+OutPutSubDir+"/";
 
   if( !gSystem->mkdir(base_plotpath, kTRUE) ){
     cout
@@ -123,7 +125,7 @@ void Draw_FakeRate(){
   };
 
   vector<TString> LeptonFlavours = {
-    //"Electron",
+    "Electron",
     "Muon",
   };
 
@@ -147,7 +149,9 @@ void Draw_FakeRate(){
     TString Lepton = LeptonFlavours.at(it_leptonflv);
 
     vector<TString> IDs = {
-      "SUSY", "SUSYTight_VeryLoose", "SUSYTight_SUDYLooseNoIPMiniIso0p6", "SUSYTight_SUDYLooseNoIPMiniIso0p4",
+      "HNPairVeryLoose",
+      "HNPair",
+      "HNPair_ElectronLooseNoIP",
     };
 
     vector<TString> Triggers;
@@ -159,8 +163,9 @@ void Draw_FakeRate(){
     }
 
     //==== Data pt-binning
-    vector<double> tmp_ptbinnings =     {10, 45, 55, 75, 85, 100, 150, 200, 500, 1000, 1500, 2000}; //DoublePhoton70
-    if(Lepton=="Muon") tmp_ptbinnings = {10, 35, 45, 75, 80, 100, 150, 200, 500, 1000, 1500, 2000}; //Mu50
+    //====                                           75 = ptcut
+    vector<double> tmp_ptbinnings =     {10, 40, 50, 75,     110, 150, 200, 250, 300, 350, 500, 1000, 1500, 2000}; //DoublePhoton70
+    if(Lepton=="Muon") tmp_ptbinnings = {10, 35, 45, 75, 80, 110, 150, 200, 250, 300, 350, 500, 1000, 1500, 2000}; //Mu50
 
     const int n_ptarray = tmp_ptbinnings.size()-1;
     double ptarray[n_ptarray+1];
@@ -177,8 +182,6 @@ void Draw_FakeRate(){
       if(Lepton=="Muon") DATAPD = "SingleMuon";
       TFile *file_DATA = new TFile(base_filepath+"/CalcFakeRate_data_"+DATAPD+".root");
 
-      //FIXME
-      if(Lepton=="Muon"){
       //==== Trigger Norm Check plots
 
       for(unsigned int it_trigger=0; it_trigger<Triggers.size(); it_trigger++){
@@ -286,7 +289,6 @@ void Draw_FakeRate(){
 
 
       }
-      } //FIXME
 
       //==== Run over single varialbes, and get Fake Rates
 
@@ -465,7 +467,7 @@ void Draw_FakeRate(){
           for(unsigned int it_sample=0; it_sample<Prompt_samples.size(); it_sample++){
             TFile *filetemp = new TFile(base_filepath+"/CalcFakeRate_"+Prompt_samples.at(it_sample)+".root");
             TH1D *histtemp_Den = (TH1D *)filetemp->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_AwayJetPt"+this_AwayJetPt+"_Den_"+var);
-            TH1D *histtemp_Num = (TH1D *)filetemp->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_AwayJetPt"+this_AwayJetPt+"_Den_"+var);
+            TH1D *histtemp_Num = (TH1D *)filetemp->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_AwayJetPt"+this_AwayJetPt+"_Num_"+var);
 
             if(histtemp_Den){
               histtemp_Den->SetFillColor(Prompt_sample_colors.at(it_sample));
@@ -508,7 +510,7 @@ void Draw_FakeRate(){
           dummy_DATA->GetYaxis()->SetRangeUser(1., GetMaximum(dummy_DATA));
           dummy_DATA->GetYaxis()->SetTitle("Events");
           dummy_DATA->GetXaxis()->SetTitle(xtitles.at(it_var));
-          if(var=="Pt" || var=="PtCone") dummy_DATA->GetXaxis()->SetRangeUser(0,500);
+          if(var=="Pt" || var=="PtCone") dummy_DATA->GetXaxis()->SetRangeUser(0,2000);
           dummy_DATA->SetLineColor(0);
           dummy_DATA->Draw("hist");
 
@@ -574,6 +576,70 @@ void Draw_FakeRate(){
         } // END Loop AwayJet Pt
 
       } // END Loop variable
+
+
+      //==== For 2D plots
+
+      TFile *outfile_FR = new TFile(this_dirname+"/"+Lepton+"_"+ID+"_FakeRates.root","RECREATE");
+      for(unsigned int it_jpt=0; it_jpt<AwayJetMinPts.size(); it_jpt++){
+
+        TString this_AwayJetPt = AwayJetMinPts.at(it_jpt);
+
+        TCanvas *c_FR_2D = new TCanvas("c_FR_2D", "", 600, 1000);
+        canvas_margin(c_FR_2D);
+        c_FR_2D->cd();
+
+        TH2D *hist_DATA_Den = (TH2D *)file_DATA->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_AwayJetPt"+this_AwayJetPt+"_Den_"+"PtCone_vs_Eta");
+        TH2D *hist_DATA_Num = (TH2D *)file_DATA->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_AwayJetPt"+this_AwayJetPt+"_Num_"+"PtCone_vs_Eta");
+
+        for(unsigned int it_sample=0; it_sample<Prompt_samples.size(); it_sample++){
+          TFile *filetemp = new TFile(base_filepath+"/CalcFakeRate_"+Prompt_samples.at(it_sample)+".root");
+          TH2D *histtemp_Den = (TH2D *)filetemp->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_AwayJetPt"+this_AwayJetPt+"_Den_"+"PtCone_vs_Eta");
+          TH2D *histtemp_Num = (TH2D *)filetemp->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_DATA_AwayJetPt"+this_AwayJetPt+"_Num_"+"PtCone_vs_Eta");
+
+          if(histtemp_Den){
+            hist_DATA_Den->Add(histtemp_Den, -1.);
+          }
+          if(histtemp_Num){
+            hist_DATA_Num->Add(histtemp_Num, -1.);
+          }
+
+          filetemp->Close();
+          delete filetemp;
+        }
+
+        TH2D *hist_FR_2D = (TH2D *)hist_DATA_Den->Clone();
+        hist_FR_2D->SetName(Lepton+"_2DFR_"+ID+"_AwayJetPt"+this_AwayJetPt);
+        for(int ix=1; ix<=hist_DATA_Den->GetXaxis()->GetNbins(); ix++){
+          for(int iy=1; iy<=hist_DATA_Den->GetYaxis()->GetNbins(); iy++){
+            double this_Den = hist_DATA_Den->GetBinContent(ix,iy);
+            double this_Num = hist_DATA_Num->GetBinContent(ix,iy);
+            double this_FR = 1.;
+            if(this_Den==0){
+              this_FR = 0;
+            }
+            else if(this_Den<0||this_Num<0) this_FR = 0;
+            else this_FR = this_Num/this_Den;
+            hist_FR_2D->SetBinContent(ix, iy, this_FR);
+            
+          }
+        }
+
+        outfile_FR->cd();
+        hist_FR_2D->Write();
+
+        c_FR_2D->cd();
+        hist_FR_2D->Draw("colztext");
+        hist_FR_2D->GetXaxis()->SetRangeUser(0,200);
+
+        c_FR_2D->SaveAs(this_dirname+"/2D_DATA_AwayJetPt"+this_AwayJetPt+"_FR_"+"PtCone_vs_Eta"+".pdf");
+        c_FR_2D->SaveAs(this_dirname+"/2D_DATA_AwayJetPt"+this_AwayJetPt+"_FR_"+"PtCone_vs_Eta"+".png");
+        c_FR_2D->Close();
+
+
+      } // END Loop AwayJet Pt
+
+      outfile_FR->Close();
 
     } // END Loop ID
 

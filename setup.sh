@@ -6,8 +6,8 @@ export PLOT_PATH=/home/jskim/Dropbox/PairN_13TeV/plots/
 export SCRIPT_DIR=$PLOTTER_WORKING_DIR/script/
 export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$PLOTTER_WORKING_DIR/include/:$PLOTTER_WORKING_DIR/src/
 
-export CATVERSION="v946p1_2"
-export CATANVERSION="v946p1_2__Default"
+export CATVERSION="v946p1_3"
+export CATANVERSION="v946p1_3__Default"
 
 alias lqout='cd '$PLOT_PATH
 

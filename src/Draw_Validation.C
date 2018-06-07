@@ -85,9 +85,9 @@ void Draw_Validation(int XXX=0){
 
     vector<TString> paramnames = {
       "POG",
-      //"POG_pt75",
-      "SUSY",
-      //"SUSY_pt75",
+      "POG_pt75",
+      "HNPair",
+      "HNPair_pt75",
     };
 
     vector<TString> regions = {
@@ -99,6 +99,10 @@ void Draw_Validation(int XXX=0){
       "DiElectron_OnZ_OS",
       "DiElectron_ZMassgt50_OS",
       "DiElectron_WithBJet_METgt30_OS",
+      "DiPhoton_OS",
+      "DiPhoton_OnZ_OS",
+      "DiPhoton_ZMassgt50_OS",
+      "DiPhoton_WithBJet_METgt30_OS",
     };
 
     for(unsigned int i=0; i<paramnames.size(); i++){
@@ -115,7 +119,10 @@ void Draw_Validation(int XXX=0){
       m.samples_to_use = {"VV_incl", "ttbar_ll", "DY", "WJets_MG"};
 
     vector<TString> paramnames = {
-      "POG", "POG_pt75", "SUSY", "SUSY_pt75",
+      "POG",
+      "POG_pt75",
+      "HNPair",
+      "HNPair_pt75",
     };
 
     vector<TString> regions = {
