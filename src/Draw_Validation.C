@@ -91,6 +91,7 @@ void Draw_Validation(int XXX=0){
     };
 
     vector<TString> regions = {
+/*
       "SingleMuon_OS",
       "SingleMuon_OnZ_OS",
       "SingleMuon_ZMassgt50_OS",
@@ -99,6 +100,7 @@ void Draw_Validation(int XXX=0){
       "DiElectron_OnZ_OS",
       "DiElectron_ZMassgt50_OS",
       "DiElectron_WithBJet_METgt30_OS",
+*/
       "DiPhoton_OS",
       "DiPhoton_OnZ_OS",
       "DiPhoton_ZMassgt50_OS",
@@ -184,6 +186,10 @@ void Draw_Validation(int XXX=0){
     }
     else if(m.histname_suffix.at(i).Contains("SingleMuon")){
       m.PrimaryDataset.push_back("SingleMuon");
+      m.LeptonChannels.push_back(22); //FIXME
+    }
+    else if(m.histname_suffix.at(i).Contains("DiPhoton")){
+      m.PrimaryDataset.push_back("DoubleEG");
       m.LeptonChannels.push_back(22); //FIXME
     }
     else{

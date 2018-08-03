@@ -9,6 +9,7 @@ Plotter::Plotter(){
 
   gStyle->SetOptStat(0);
   DoDebug = false;
+  MakeShape = false;
   gErrorIgnoreLevel = kError;
 
 }
@@ -31,11 +32,13 @@ void Plotter::draw_hist(){
     thiscut_plotpath = plotpath+"/"+histname_suffix[i_cut];
     if(ApplyMCNormSF.at(i_cut)) thiscut_plotpath = plotpath+"/MCNormSFed"+histname_suffix[i_cut];
 
-    //m.outputdir_for_shape = ENV_PLOT_PATH+"/"+dataset+"/FilesForShapes/SR/";
-    //mkdir(outputdir_for_shape);
-    //TFile *outputfile = new TFile(outputdir_for_shape+"/hists.root", "RECREATE");
     TFile *outputfile = NULL;
-    
+    thisoutputdir_for_shape = outputdir_for_shape+"/"+histname_suffix[i_cut]+"/";
+    mkdir(thisoutputdir_for_shape);
+    if(MakeShape){
+      outputfile = new TFile(thisoutputdir_for_shape+"/"+histname_suffix[i_cut]+".root", "RECREATE");
+    }
+
     cout
     << endl
     << "################### Writing in Directory " << histname_suffix[i_cut] << " ###################" << endl
@@ -93,7 +96,7 @@ void Plotter::draw_hist(){
         //==== bkg
         if( i_file < bkglist.size() ){
           TString tmp = bkglist[i_file];
-          if(bkglist[i_file].Contains("fake") || bkglist[i_file].Contains("chargeflip")) tmp += "_"+PrimaryDataset[i_cut];
+          if(bkglist[i_file].Contains("fake") || bkglist[i_file].Contains("chargeflip") || bkglist[i_file].Contains("FromEMu") ) tmp += "_"+PrimaryDataset[i_cut];
           filepath = "./rootfiles/"+data_class+"/"+filename_prefix+"_"+tmp+filename_suffix;
           current_sample = bkglist[i_file];
         }
@@ -109,23 +112,24 @@ void Plotter::draw_hist(){
 
           if(!signal_draw[signal_index]) continue;
 
-          if(DoDebug) cout << "signal_index = " << signal_index << " => mass = " << signal_LRSMinfo[signal_index].GetCATFileName() << endl;
-
-          LRSMSignalInfo this_lrsm = signal_LRSMinfo.at(signal_index);
-
           //==== Read from data PD
           TString WhichChannel = "MuMu";
-          if(histname_suffix[i_cut].Contains("DiElectron")) WhichChannel = "ElEl";
-          if(histname_suffix[i_cut].Contains("EMu")) WhichChannel = "MuEl";
-          if(histname_suffix[i_cut].Contains("DiLepton")) WhichChannel = "LL";
+          if(histname_suffix[i_cut].Contains("DiPhoton")) WhichChannel = "ElEl";
+          else if(histname_suffix[i_cut].Contains("SingleMuon")) WhichChannel = "MuMu";
+          else if(histname_suffix[i_cut].Contains("DiElectron")) WhichChannel = "ElEl";
+          else if(histname_suffix[i_cut].Contains("EMu")) WhichChannel = "MuEl";
+          else if(histname_suffix[i_cut].Contains("DiLepton")) WhichChannel = "LL";
 
           //==== If data PD != this signal lep channl, continue
-          if( WhichChannel != this_lrsm.lep_channel ) continue;
+          signal_LRSMinfo.at(signal_index).lep_channel = WhichChannel;
+          signal_LRSMinfo.at(signal_index).SetNames();
+          if(DoDebug) cout << "signal_index = " << signal_index << " => mass = " << signal_LRSMinfo[signal_index].GetFileName() << endl;
+
           TString WhichChannel_for_tex = WhichChannel;
 
           //==== CAT signal alias
-          TString string_signal_mass = this_lrsm.GetCATFileName();
-          signal_name_for_tex = this_lrsm.GetTEXName();
+          TString string_signal_mass = signal_LRSMinfo.at(signal_index).GetFileName();
+          signal_name_for_tex = signal_LRSMinfo.at(signal_index).GetTEXName();
 
           filepath = "./rootfiles/"+data_class+"/Signal/"+filename_prefix+"_"+string_signal_mass+filename_suffix;
           //cout << filepath << endl;
@@ -185,12 +189,18 @@ void Plotter::draw_hist(){
 
         //==== rebin here
         //if(histname[i_var]=="Z_Mass" && !histname_suffix[i_cut].Contains("OnZ")){
-        if(0){
-          //double pt2array[11+1] = {0, 50, 120, 200, 400, 800, 1400, 2300, 3500, 4500, 6000, 6500};
-          //hist_temp = (TH1D *)hist_temp->Rebin(11, "hnew1", pt2array);
+        if(histname[i_var]=="ZP_Mass" || histname[i_var].Contains("_0_Pt") || histname[i_var].Contains("_1_Pt")){
 
-          double pt2array[24+1] = {0, 50, 120, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1200, 1400, 1600, 1800, 2000, 2300, 2500, 3000, 3500, 4000, 4500, 6000, 6500};
-          hist_temp = (TH1D *)hist_temp->Rebin(24, "hnew1", pt2array);
+          vector<double> vec_bins;
+          if(histname[i_var]=="ZP_Mass") vec_bins = {0, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2500, 3500, 5000, 5500};
+          else if(histname[i_var].Contains("_0_Pt")) vec_bins = {0, 40, 75, 90, 120, 150, 180, 210, 270, 330, 390, 1000};
+          else if(histname[i_var].Contains("_1_Pt")) vec_bins = {0, 40, 75, 90, 120, 150, 180, 210, 1000};
+          else{ }
+          const int n_bin = vec_bins.size()-1;
+          double pt2array[n_bin+1];
+          for(int zzz=0;zzz<vec_bins.size();zzz++) pt2array[zzz] = vec_bins.at(zzz);
+          hist_temp = (TH1D *)hist_temp->Rebin(n_bin, hist_temp->GetName(), pt2array);
+
         }
         else{
           hist_temp->Rebin( n_rebin() );
@@ -203,21 +213,21 @@ void Plotter::draw_hist(){
         TH1D *hist_final = MakeOverflowBin(hist_temp);
 
         //==== Stat Error Propations for Fake
-        if( current_sample.Contains("chargeflip") ){
+        //if( current_sample.Contains("chargeflip") ){
+        if(0){
           TDirectory *dir_up = (TDirectory *)file->Get(DirName+"_up");
           TH1D* hist_temp_up = (TH1D*)dir_up->Get(fullhistname+"_up");
           if(!hist_temp_up ) continue;
 
-					//if(histname[i_var]=="Z_Mass" && !histname_suffix[i_cut].Contains("OnZ")){
           if(0){
-						//double pt2array[11+1] = {0, 50, 120, 200, 400, 800, 1400, 2300, 3500, 4500, 6000, 6500};
-						//hist_temp_up = (TH1D *)hist_temp->Rebin(11, "hnew1", pt2array);
+            //double pt2array[11+1] = {0, 50, 120, 200, 400, 800, 1400, 2300, 3500, 4500, 6000, 6500};
+            //hist_temp_up = (TH1D *)hist_temp->Rebin(11, hist_temp_up->GetName(), pt2array);
             double pt2array[24+1] = {0, 50, 120, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1200, 1400, 1600, 1800, 2000, 2300, 2500, 3000, 3500, 4000, 4500, 6000, 6500};
-            hist_temp = (TH1D *)hist_temp->Rebin(24, "hnew1", pt2array);
-					}
-					else{
-						hist_temp_up->Rebin( n_rebin() );
-					}
+            hist_temp = (TH1D *)hist_temp->Rebin(24, hist_temp->GetName(), pt2array);
+          }
+          else{
+            hist_temp_up->Rebin( n_rebin() );
+          }
 
           //==== set X-axis range
           SetXaxisRange(hist_temp_up);
@@ -277,6 +287,7 @@ void Plotter::draw_hist(){
           double ThisSyst = 0.;
           if( current_sample.Contains("fake") ) ThisSyst = analysisInputs.CalculatedSysts["FakeLooseID"];
           else if( current_sample.Contains("chargeflip") ) ThisSyst = analysisInputs.CalculatedSysts["ChrageFlipSyst"];
+          else if( current_sample.Contains("FromEMu") ) ThisSyst = analysisInputs.CalculatedSysts["FromEMu"];
           else{
             double mcnorm = analysisInputs.MCNormSF_uncert[current_sample];
             if(!ApplyMCNormSF.at(i_cut)) mcnorm = 0.;
@@ -306,7 +317,7 @@ void Plotter::draw_hist(){
         //==== signal starting from i_file = bkglist.size()+1
         else if( i_file > bkglist.size() ){
           int signal_index = i_file-bkglist.size()-1;
-          if(DoDebug) cout << "signal index = " << signal_index << ", mass = " << signal_LRSMinfo[signal_index].GetCATFileName() << endl;
+          if(DoDebug) cout << "signal index = " << signal_index << ", mass = " << signal_LRSMinfo[signal_index].GetFileName() << endl;
           hist_final->SetLineColor(signal_color[signal_index]);
           hist_final->SetLineWidth(3);
           hist_final->SetLineStyle(signal_style[signal_index]);
@@ -314,6 +325,16 @@ void Plotter::draw_hist(){
           //hist_final->SetName(temp_hist_name+"_signal_"+TString::Itoa(signal_LRSMinfo[signal_index], 10));
           //hist_final->SetName(temp_hist_name+"_signal_"+TString::Itoa(signal_LRSMinfo[signal_index], 10));
 
+          if(!MakeShape && histname_suffix[i_cut].Contains("SS")){
+            if(histname[i_var].Contains("MuMu")){
+              hist_final->Scale( 1./100. );
+            }
+            else if(histname[i_var].Contains("ElEl")){
+              hist_final->Scale( 1./10. );
+            }
+            else{
+            }
+          }
           //hist_final->Scale( 1 );
 
           hist_signal.push_back( (TH1D*)hist_final->Clone() );
@@ -372,7 +393,7 @@ void Plotter::draw_hist(){
       
     } // END loop over variables
 
-    //outputfile->Close();
+    if(MakeShape) outputfile->Close();
     //system("rm "+thiscut_plotpath+"/hists.root");
 
 
@@ -1002,8 +1023,7 @@ void Plotter::draw_canvas(THStack *mc_stack, TH1D *mc_staterror, TH1D *mc_allerr
     latex_CMSPriliminary.SetNDC();
     latex_Lumi.SetNDC();
     latex_CMSPriliminary.SetTextSize(0.035);
-
-    latex_CMSPriliminary.DrawLatex(0.15, 0.96, "#font[62]{CMS}");
+    latex_CMSPriliminary.DrawLatex(0.15, 0.96, "#font[62]{CMS} #font[42]{#it{#scale[0.8]{Preliminary}}}");
 
     latex_Lumi.SetTextSize(0.035);
     latex_Lumi.SetTextFont(42);
@@ -1060,11 +1080,23 @@ void Plotter::draw_canvas(THStack *mc_stack, TH1D *mc_staterror, TH1D *mc_allerr
   }
 
   mkdir(thiscut_plotpath);
-  c1->SaveAs(thiscut_plotpath+"/"+histname[i_var]+"_"+histname_suffix[i_cut]+".pdf");
-  c1->SaveAs(thiscut_plotpath+"/"+histname[i_var]+"_"+histname_suffix[i_cut]+".png");
-  //outputf->cd();
-  //c1->Write();
-  
+  if(!MakeShape){
+    c1->SaveAs(thiscut_plotpath+"/"+histname[i_var]+"_"+histname_suffix[i_cut]+".pdf");
+    c1->SaveAs(thiscut_plotpath+"/"+histname[i_var]+"_"+histname_suffix[i_cut]+".png");
+  }
+
+  //==== Write shape
+  if(MakeShape){
+    outputf->cd();
+    outputf->mkdir(histname[i_var]);
+    outputf->cd(histname[i_var]);
+    mc_staterror->Write();
+    hist_data->Write();
+    for(unsigned int it_sig=0;it_sig<hist_signal.size();it_sig++) hist_signal.at(it_sig)->Write();
+    outputf->cd();
+  }
+
+
   delete legend;
   delete c1;
 }
@@ -1308,7 +1340,8 @@ void Plotter::make_plot_directory(){
   //plotpath = ENV_PLOT_PATH+"/"+data_class;
 
   for(unsigned int i=0; i<samples_to_use.size(); i++){
-    if(samples_to_use.at(i).Contains("fake")) plotpath = plotpath+"/use_FR_method/"+samples_to_use.at(i);
+    //if(samples_to_use.at(i).Contains("fake")) plotpath = plotpath+"/use_FR_method/"+samples_to_use.at(i);
+    if(samples_to_use.at(i).Contains("FromEMu")) plotpath = plotpath+"/use_EMu_method/"+samples_to_use.at(i);
   }
 
   //plotpath = plotpath+"/NotSubtracted/"; //FIXME
@@ -1428,44 +1461,35 @@ TString Plotter::GetStringChannelRegion(int A, int B){
   //==== A = 2 : ee
   //==== A = 3 : em
 
+  //==== Lepton Combined
   if(A==20) channel = "ee,#mu#mu,e#mu";
-  if(A==21) channel = "#mu^{#pm}#mu^{#pm}";
-  if(A==22) channel = "e^{#pm}e^{#pm}";
-  if(A==23) channel = "e^{#pm}#mu^{#pm}";
-  if(A==30) channel = "3l";
-  if(A==40) channel = "4l";
+  //==== mumu
+  if(abs(A)==21) channel = "#mu#mu";
+  //==== ee
+  if(abs(A)==22) channel = "ee";
+  //==== emu
+  if(abs(A)==23) channel = "e#mu";
+  //==== three lepton
+  if(abs(A)==30) channel = "3l";
+  //==== four lepton
+  if(abs(A)==40) channel = "4l";
+
+  //==== SS(+) of OS(-)
+  if(A>0) channel = channel+" (SS)";
+  else    channel = channel+" (OS)";
 
   TString region = "";
-  //==== B = 1 : Preselection 
-  //==== B = 20 : Low
-  //==== B = 21 : Low + two jet
-  //==== B = 22 : Low + one jet
-  //==== B = 30 : High
-  //==== B = 31 : High + two jet
-  //==== B = 32 : High + fat jet
-  if(B==1) region = "Preselection";
+  //==== B = 1 : SR
+  //==== B = 10 : CR1
+  //==== B = 20 : CR2
+  //==== B = 30 : CR3
+  if(abs(B)==1) region = "SR";
 
-  if(B==20) region = "Low-mass";
-  if(B==21) region = "Low-mass SR1";
-  if(B==22) region = "Low-mass SR2";
-  if(B==-20) region = "Low-mass CR";
-  if(B==-21) region = "Low-mass CR1";
-  if(B==-22) region = "Low-mass CR2";
+  if(abs(B)==10) region = "CR1";
+  if(abs(B)==20) region = "CR2";
+  if(abs(B)==30) region = "CR3";
 
-  if(B==30) region = "High-mass";
-  if(B==31) region = "High-mass SR1";
-  if(B==32) region = "High-mass SR2";
-  if(B==-30) region = "High-mass CR";
-  if(B==-31) region = "High-mass CR1";
-  if(B==-32) region = "High-mass CR2";
 
-  if(B==-4) region = "Non-prompt CR1";
-  if(B==-5) region = "Non-prompt CR2";
-
-  if(B==-101) region = "WZ CR";
-  if(B==-102) region = "Z#gamma CR";
-  if(B==-103) region = "W#gamma CR";
-  if(B==-104) region = "ZZ CR";
 
   if(A==20) return region;
 

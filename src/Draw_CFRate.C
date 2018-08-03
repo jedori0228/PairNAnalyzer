@@ -28,19 +28,22 @@ void Draw_CFRate(){
   //==== Samples
 
   vector<TString> samples = {
-    "ZToLL", "DYJets",
+    "ZToLL", "DYJets", "TTLL_powheg",
   };
   vector<TString> alias = {
-    "DY (Binned)", "DY (Inclusive)",
+    "DY (Binned)", "DY (Inclusive)", "TT Leptonic",
   };
   vector<Color_t> sample_colors = {
-    kRed, kYellow+2,
+    kRed, kYellow+2, kBlue,
   };
 
   //==== Variables
 
   vector<TString> vars = {
     "Pt", "InvPt", "GenPt", "InvGenPt",
+    "InnerBarrel_Pt", "InnerBarrel_InvPt", "InnerBarrel_GenPt", "InnerBarrel_InvGenPt",
+    "OuterBarrel_Pt", "OuterBarrel_InvPt", "OuterBarrel_GenPt", "OuterBarrel_InvGenPt",
+    "EndCap_Pt", "EndCap_InvPt", "EndCap_GenPt", "EndCap_InvGenPt",
     "Eta",
     "RelIso", "MiniRelIso",
     "dXY", "dXYSig", "dZ", "dZSig", "IP3D", "IP3DSig",
@@ -48,13 +51,19 @@ void Draw_CFRate(){
   };
   vector<TString> xtitles = {
     "p_{T,RECO} (GeV)", "1/p_{T,RECO} (GeV^{-1})", "p_{T,GEN} (GeV)", "1/p_{T,GEN} (GeV^{-1})",
+    "InnerBarrel p_{T,RECO} (GeV)", "InnerBarrel 1/p_{T,RECO} (GeV^{-1})", "InnerBarrel p_{T,GEN} (GeV)", "InnerBarrel 1/p_{T,GEN} (GeV^{-1})",
+    "OuterBarrel p_{T,RECO} (GeV)", "OuterBarrel 1/p_{T,RECO} (GeV^{-1})", "OuterBarrel p_{T,GEN} (GeV)", "OuterBarrel 1/p_{T,GEN} (GeV^{-1})",
+    "EndCap p_{T,RECO} (GeV)", "EndCap 1/p_{T,RECO} (GeV^{-1})", "EndCap p_{T,GEN} (GeV)", "EndCap 1/p_{T,GEN} (GeV^{-1})",
     "#eta", 
     "RelIso", "MiniRelIso",
     "|dXY| (cm)", "|dXYSig|", "|dZ| (cm)", "|dZSig|", "IP3D (cm)", "IP3DSig",
     "#chi^{2}", "MVA (No iso)",
   };
   vector<int> rebins = {
-    50, 50, 50, 50,
+    50, 1, 50, 1,
+    50, 1, 50, 1,
+    50, 1, 50, 1,
+    50, 1, 50, 1,
     5,
     1, 1,
     10, 1, 10, 1, 10, 1,
@@ -62,13 +71,14 @@ void Draw_CFRate(){
   };
   vector<double> x_maxs = {
     2000., 0.1, 2000., 0.1,
+    2000., 0.1, 2000., 0.1,
+    2000., 0.1, 2000., 0.1,
+    2000., 0.1, 2000., 0.1,
     3.,
     1.0, 1.0,
     0.5, 10, 0.5, 10, 0.5, 10,
     50, 1,
   };
-
-
 
   vector<TString> LeptonFlavours = {
     "Electron", "Muon"
@@ -81,7 +91,8 @@ void Draw_CFRate(){
     //==== MC Fake Rate
 
     vector<TString> IDs = {
-      "SUSYTight", "SUSYLoose",
+      "HNPairTight",
+      "HNPairLoose",
     };
 
     for(unsigned int it_id=0; it_id<IDs.size(); it_id++){
@@ -91,9 +102,15 @@ void Draw_CFRate(){
       TString this_dirname = base_plotpath+"/"+Lepton+"_"+ID+"/";
       gSystem->mkdir(this_dirname, kTRUE);
 
+      //==== Output rootfile
+      TFile *this_output = new TFile(this_dirname+"/"+Lepton+"_"+ID+"_CFRates.root","RECREATE");
+
       for(unsigned int it_var=0; it_var<vars.size(); it_var++){
 
         TString var = vars.at(it_var);
+
+        bool SaveHistToOutput = false;
+        if(var=="InnerBarrel_InvGenPt" || var=="OuterBarrel_InvGenPt" || var=="EndCap_InvGenPt") SaveHistToOutput = true;
 
         //==== For all samples in one plot
         TCanvas *c_CF_all = new TCanvas("c_CF_all", "", 600, 600);
@@ -115,6 +132,7 @@ void Draw_CFRate(){
         if(Lepton=="Muon") y_max_all = 0.01;
         dummy_all->GetYaxis()->SetRangeUser(0,y_max_all);
         dummy_all->GetYaxis()->SetTitle("CF rate");
+        if(var.Contains("Inv")) dummy_all->GetXaxis()->SetRangeUser(0,0.015);
         //c_CF_all->SetLogx();
         dummy_all->GetXaxis()->SetTitle(xtitles.at(it_var));
         dummy_all->Draw("hist");
@@ -134,7 +152,14 @@ void Draw_CFRate(){
           TH1D *hist_Den = (TH1D *)file_MC->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_Den_"+var);
           TH1D *hist_Num = (TH1D *)file_MC->Get(Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_Num_"+var);
 
-          if(!hist_Den) continue;
+          if(!hist_Den){
+            //cout << "[No Hist] " << Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_Den_"+var << endl;
+            continue;
+          }
+          if(!hist_Num){
+            //cout << "[No Hist] " << Lepton+"_"+ID+"/"+Lepton+"_"+ID+"_Num_"+var << endl;
+            continue;
+          }
 
           IsCFFilled = true;
 
@@ -160,6 +185,7 @@ void Draw_CFRate(){
           TH1D *dummy = new TH1D("dummy", "", int((x_max-x_min)/dx), x_min, x_max);
           hist_axis(dummy);
           dummy->GetYaxis()->SetRangeUser(0,1.0);
+          if(var.Contains("Inv")) dummy->GetXaxis()->SetRangeUser(0,0.015);
           dummy->GetYaxis()->SetTitle("CF rate");
           //c_Dist->SetLogx();
           dummy->GetXaxis()->SetTitle(xtitles.at(it_var));
@@ -201,6 +227,16 @@ void Draw_CFRate(){
           c_CF_all->cd();
           gr_CF->Draw("lsame");
           gr_CF->SetLineColor(sample_colors.at(it_sample));
+
+          if(SaveHistToOutput){
+            //==== Make Hist for output
+            TH1D *hist_CFRate = (TH1D *)hist_Num->Clone();
+            hist_CFRate->SetName(sample+"_"+var);
+            hist_CFRate->Divide(hist_Den);
+            this_output->cd();
+            hist_CFRate->Write();
+          }
+
           lg->AddEntry(gr_CF, alias.at(it_sample), "l");
 
         } // END Loop sample
@@ -219,6 +255,8 @@ void Draw_CFRate(){
         c_CF_all->Close();
 
       } // END Loop variable
+
+      this_output->Close();
 
     } // END Loop ID
 

@@ -8,12 +8,12 @@ public :
   TString prod_channel;
   TString lep_channel;
   TString generator;
-  TString CATFileName;
+  TString FileName;
 
   void SetNames();
-  TString catfilename, legendalias, texname;
+  TString filename, legendalias, texname;
 
-  TString GetCATFileName();
+  TString GetFileName();
   TString GetLegendAlias();
   TString GetTEXName();
   LRSMSignalInfo();
@@ -27,9 +27,9 @@ LRSMSignalInfo::LRSMSignalInfo(){ }
 
 void LRSMSignalInfo::SetNames(){
 
-  if(generator=="pythia"){
+  if(generator=="aMCNLO"){
     if(prod_channel=="pair"){
-      catfilename = "HNpair_"+lep_channel+"_WR"+TString::Itoa(mass_WR,10)+"_Zp"+TString::Itoa(mass_Z,10)+"_HN"+TString::Itoa(mass_N,10)+"_official";
+      filename = "HNPairToJJJJ_"+lep_channel+"_ZP"+TString::Itoa(mass_Z,10)+"_N"+TString::Itoa(mass_N,10)+"_WR"+TString::Itoa(mass_WR,10);
       legendalias = "m_{Z'} = "+TString::Itoa(mass_Z,10)+" GeV, m_{N} = "+TString::Itoa(mass_N,10);
       texname = "SignalPair"+lep_channel+"Z"+TString::Itoa(mass_Z,10)+"N"+TString::Itoa(mass_N,10);
     }
@@ -38,8 +38,8 @@ void LRSMSignalInfo::SetNames(){
 }
 
 
-TString LRSMSignalInfo::GetCATFileName(){
-  return catfilename;
+TString LRSMSignalInfo::GetFileName(){
+  return filename;
 }
 
 TString LRSMSignalInfo::GetLegendAlias(){

@@ -151,7 +151,9 @@ void Draw_FakeRate(){
     vector<TString> IDs = {
       "HNPairVeryLoose",
       "HNPair",
+      "HNPair_PtCut",
       "HNPair_ElectronLooseNoIP",
+      "HNPair_ElectronLooseNoIP_PtCut",
     };
 
     vector<TString> Triggers;
@@ -207,6 +209,7 @@ void Draw_FakeRate(){
           lg_Norm->SetFillStyle(0);
 
           TH1D *hist_DATA = (TH1D *)file_DATA->Get(Lepton+"_"+ID+"/"+ID+"_TriggerNorm_"+trig+"_"+var);
+          if(!hist_DATA) continue;
           hist_DATA->Rebin(Norm_rebins.at(it_var));
 
           lg_Norm->AddEntry(hist_DATA, "Data", "pe");
@@ -561,6 +564,9 @@ void Draw_FakeRate(){
           dummy_DATA->GetYaxis()->SetRangeUser(0,1.);
           dummy_DATA->GetYaxis()->SetTitle("FR");
           dummy_DATA->Draw("hist");
+          if(var=="PtCone"){
+            dummy_DATA->GetXaxis()->SetRangeUser(0,200);
+          }
 
           TEfficiency *Eff_FR = new TEfficiency(*hist_DATA_Num_Subtracted, *hist_DATA_Den_Subtracted);
           TGraphAsymmErrors *gr_FR = Eff_FR->CreateGraph();
@@ -585,7 +591,7 @@ void Draw_FakeRate(){
 
         TString this_AwayJetPt = AwayJetMinPts.at(it_jpt);
 
-        TCanvas *c_FR_2D = new TCanvas("c_FR_2D", "", 600, 1000);
+        TCanvas *c_FR_2D = new TCanvas("c_FR_2D", "", 1000, 600);
         canvas_margin(c_FR_2D);
         c_FR_2D->cd();
 
@@ -608,29 +614,35 @@ void Draw_FakeRate(){
           delete filetemp;
         }
 
-        TH2D *hist_FR_2D = (TH2D *)hist_DATA_Den->Clone();
-        hist_FR_2D->SetName(Lepton+"_2DFR_"+ID+"_AwayJetPt"+this_AwayJetPt);
-        for(int ix=1; ix<=hist_DATA_Den->GetXaxis()->GetNbins(); ix++){
-          for(int iy=1; iy<=hist_DATA_Den->GetYaxis()->GetNbins(); iy++){
+        for(int ix=1; ix<=hist_DATA_Num->GetXaxis()->GetNbins(); ix++){
+          for(int iy=1; iy<=hist_DATA_Num->GetYaxis()->GetNbins(); iy++){
             double this_Den = hist_DATA_Den->GetBinContent(ix,iy);
             double this_Num = hist_DATA_Num->GetBinContent(ix,iy);
             double this_FR = 1.;
             if(this_Den==0){
-              this_FR = 0;
+              this_Den = 1.;
+              this_Num = 0.;
             }
-            else if(this_Den<0||this_Num<0) this_FR = 0;
-            else this_FR = this_Num/this_Den;
-            hist_FR_2D->SetBinContent(ix, iy, this_FR);
-            
+            if(this_Den<0||this_Num<0){
+              this_Den = 1.;
+              this_Num = 0.;
+            }
+            hist_DATA_Den->SetBinContent(ix,iy,this_Den);
+            hist_DATA_Num->SetBinContent(ix,iy,this_Num);
           }
         }
+
+        TH2D *hist_FR_2D = (TH2D *)hist_DATA_Num->Clone();
+        //hist_FR_2D->SetName(Lepton+"_2DFR_"+ID+"_AwayJetPt"+this_AwayJetPt);
+        hist_FR_2D->SetName("AwayJetPt"+this_AwayJetPt);
+        hist_FR_2D->Divide(hist_DATA_Den);
 
         outfile_FR->cd();
         hist_FR_2D->Write();
 
         c_FR_2D->cd();
         hist_FR_2D->Draw("colztext");
-        hist_FR_2D->GetXaxis()->SetRangeUser(0,200);
+        hist_FR_2D->GetXaxis()->SetRangeUser(40,200);
 
         c_FR_2D->SaveAs(this_dirname+"/2D_DATA_AwayJetPt"+this_AwayJetPt+"_FR_"+"PtCone_vs_Eta"+".pdf");
         c_FR_2D->SaveAs(this_dirname+"/2D_DATA_AwayJetPt"+this_AwayJetPt+"_FR_"+"PtCone_vs_Eta"+".png");

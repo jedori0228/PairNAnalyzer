@@ -283,51 +283,76 @@ vector<int> GetHNMassRange(int mZP, bool useallmass=false){
 
   if(useallmass){
 
-    if(mZP==500){
+    if(mZP==400){
       this_masses = {
-      100, 200, 
+       100, 
       };
       return this_masses;
     }
-    if(mZP==750){
+    if(mZP==800){
       this_masses = {
-      100, 200, 300, 
+       100, 300, 
       };
       return this_masses;
     }
-    if(mZP==1000){
+    if(mZP==1200){
       this_masses = {
-      100, 200, 300, 400, 
+       100, 300, 500, 
       };
       return this_masses;
     }
-    if(mZP==1500){
+    if(mZP==1600){
       this_masses = {
-      100, 200, 300, 400, 500, 600, 700, 
+       100, 300, 500, 700, 
       };
       return this_masses;
     }
     if(mZP==2000){
       this_masses = {
-      100, 200, 300, 400, 500, 600, 700, 800, 900, 
+       100, 300, 500, 700, 900, 
       };
       return this_masses;
     }
-    if(mZP==2500){
+    if(mZP==2400){
       this_masses = {
-      100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 
+       100, 300, 500, 700, 900, 1100, 
       };
       return this_masses;
     }
-    if(mZP==3000){
+    if(mZP==2800){
       this_masses = {
-      100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 
+       100, 300, 500, 700, 900, 1100, 1300, 
+      };
+      return this_masses;
+    }
+    if(mZP==3200){
+      this_masses = {
+       100, 300, 500, 700, 900, 1100, 1300, 1500, 
+      };
+      return this_masses;
+    }
+    if(mZP==3600){
+      this_masses = {
+       100, 300, 500, 700, 900, 1100, 1300, 1500, 1700, 
       };
       return this_masses;
     }
     if(mZP==4000){
       this_masses = {
-      100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 
+       100, 300, 500, 700, 900, 1100, 1300, 1500, 1700, 1900, 
+      };
+      return this_masses;
+    }
+    if(mZP==4400){
+      this_masses = {
+       100, 300, 500, 700, 900, 1100, 1300, 1500, 1700, 1900, 2100, 
+      };
+      return this_masses;
+    }
+    if(mZP==4800){
+      this_masses = {
+       //100, 300, 500, 700, 900, 1100, 1300, 1500, 1700, 1900, 2100, 2300,
+       100, 300, 500, 700, 900, 1300, 1500, 1700, 1900, 2100, 2300,  //FIXME
       };
       return this_masses;
     }
@@ -335,58 +360,76 @@ vector<int> GetHNMassRange(int mZP, bool useallmass=false){
   }
   else{
 
-    if(mZP==500){
+    if(mZP==400){
       this_masses = {
-      100, 200, 
+       100, 
       };
       return this_masses;
     }
-    if(mZP==750){
+    if(mZP==800){
       this_masses = {
-      100, 200, 300, 
+       100, 300, 
       };
       return this_masses;
     }
-    if(mZP==1000){
+    if(mZP==1200){
       this_masses = {
-      //100, 200, 300, 400, 
-      100, 400,
+       100, 
       };
       return this_masses;
     }
-    if(mZP==1500){
+    if(mZP==1600){
       this_masses = {
-      //100, 200, 300, 400, 500, 600, 700, 
-      100, 500,
+       100, 300, 500, 700, 
       };
       return this_masses;
     }
     if(mZP==2000){
       this_masses = {
-      //100, 200, 300, 400, 500, 600, 700, 800, 900, 
-      100, 500,
+       500, 
       };
       return this_masses;
     }
-    if(mZP==2500){
+    if(mZP==2400){
       this_masses = {
-      //100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 
-      100, 1000,
+       100, 300, 500, 700, 900, 1100, 
       };
       return this_masses;
     }
-    if(mZP==3000){
+    if(mZP==2800){
       this_masses = {
-      //100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 
-      100, 1000,
+       100, 300, 500, 700, 900, 1100, 1300, 
+      };
+      return this_masses;
+    }
+    if(mZP==3200){
+      this_masses = {
+       1100,
+      };
+      return this_masses;
+    }
+    if(mZP==3600){
+      this_masses = {
+       100, 300, 500, 700, 900, 1100, 1300, 1500, 1700, 
       };
       return this_masses;
     }
     if(mZP==4000){
       this_masses = {
-      //100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 
-      //100, 500, 1000, 1500, 1900,
-      100, 1000, 1500,
+       1500, 
+      };
+      return this_masses;
+    }
+    if(mZP==4400){
+      this_masses = {
+       100, 300, 500, 700, 900, 1100, 1300, 1500, 1700, 1900, 2100, 
+      };
+      return this_masses;
+    }
+    if(mZP==4800){
+      this_masses = {
+       //100, 300, 500, 700, 900, 1100, 1300, 1500, 1700, 1900, 2100, 2300,
+       100, 300, 500, 700, 900, 1300, 1500, 1700, 1900, 2100, 2300, 
       };
       return this_masses;
     }
@@ -394,10 +437,93 @@ vector<int> GetHNMassRange(int mZP, bool useallmass=false){
   }
 
   cout << "[GetHNMassRange(int mZP)] Wrong mZP!!" << endl;
+  cout << "[GetHNMassRange(int mZP)] mZP = " << mZP << endl;
   return this_masses;
 
 
 
+
+}
+
+vector<int> GetZPMassRange(int mN){
+
+  vector<int> this_masses;
+
+	if(mN==100){
+		this_masses = {
+		 400, 800, 1200, 1600, 2000, 2400, 2800, 3200, 3600, 4000, 4400, 4800, 
+		};
+		return this_masses;
+	}
+	if(mN==300){
+		this_masses = {
+		 800, 1200, 1600, 2000, 2400, 2800, 3200, 3600, 4000, 4400, 4800, 
+		};
+		return this_masses;
+	}
+	if(mN==500){
+		this_masses = {
+		 1200, 1600, 2000, 2400, 2800, 3200, 3600, 4000, 4400, 4800, 
+		};
+		return this_masses;
+	}
+	if(mN==700){
+		this_masses = {
+		 1600, 2000, 2400, 2800, 3200, 3600, 4000, 4400, 4800, 
+		};
+		return this_masses;
+	}
+	if(mN==900){
+		this_masses = {
+		 2000, 2400, 2800, 3200, 3600, 4000, 4400, 4800, 
+		};
+		return this_masses;
+	}
+	if(mN==1100){
+		this_masses = {
+		 //2400, 2800, 3200, 3600, 4000, 4400, 4800, 
+     2400, 2800, 3200, 3600, 4000, 4400,
+		};
+		return this_masses;
+	}
+	if(mN==1300){
+		this_masses = {
+		 2800, 3200, 3600, 4000, 4400, 4800, 
+		};
+		return this_masses;
+	}
+	if(mN==1500){
+		this_masses = {
+		 3200, 3600, 4000, 4400, 4800, 
+		};
+		return this_masses;
+	}
+	if(mN==1700){
+		this_masses = {
+		 3600, 4000, 4400, 4800, 
+		};
+		return this_masses;
+	}
+	if(mN==1900){
+		this_masses = {
+		 4000, 4400, 4800, 
+		};
+		return this_masses;
+	}
+	if(mN==2100){
+		this_masses = {
+		 4400, 4800, 
+		};
+		return this_masses;
+	}
+	if(mN==2300){
+		this_masses = {
+		 4800, 
+		};
+		return this_masses;
+	}
+
+  return this_masses;
 
 }
 

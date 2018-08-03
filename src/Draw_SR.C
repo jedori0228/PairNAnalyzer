@@ -1,7 +1,7 @@
 #include "Plotter.cc"
 #include <fstream>
 
-void Draw_SR(int XXX=0){
+void Draw_SR(int XXX=0, bool MakeShape=false){
 
   bool ScaleMC = false;
 
@@ -20,6 +20,7 @@ void Draw_SR(int XXX=0){
   
   Plotter m;
   m.DoDebug = false;
+  m.MakeShape = MakeShape;
   
   //=====================
   //==== set data class
@@ -31,69 +32,52 @@ void Draw_SR(int XXX=0){
   //==== set prefixes and suffixes
   //================================
   
-  m.filename_prefix = "PairNAnalyzer";
-  m.filename_suffix = "_cat_"+catversion+".root";
+  m.filename_prefix = "HNPairAnalyzer";
+  m.filename_suffix = ".root";
   
   //=========================
   //==== set sample mapping
   //=========================
   
-  m.map_sample_string_to_list["DY"] = {"DYJets_10to50", "DYJets"};
-  m.map_sample_string_to_list["WJets"] = {"WJets"};
-  m.map_sample_string_to_list["VV_excl"] = {
-    //"WZTo3LNu_mllmin01",
-    "WZTo3LNu_powheg",
-    "ZZTo4L_powheg", "ggZZto2e2mu", "ggZZto2e2nu", "ggZZto2e2tau", "ggZZto2mu2nu", "ggZZto2mu2tau", "ggZZto4e", "ggZZto4mu", "ggZZto4tau", "ggHtoZZ",
-  };
-  m.map_sample_string_to_list["VV_incl"] = {"WZ", "ZZ", "WW"};
-  m.map_sample_string_to_list["WZ_excl"] = {"WZTo3LNu_powheg"};
-  m.map_sample_string_to_list["ZZ_excl"] = {"ZZTo4L_powheg", "ggZZto2e2mu", "ggZZto2e2nu", "ggZZto2e2tau", "ggZZto2mu2nu", "ggZZto2mu2tau", "ggZZto4e", "ggZZto4mu", "ggZZto4tau"};
-  m.map_sample_string_to_list["VVV"] = {"WWW", "WWZ", "WZZ", "ZZZ"};
-  m.map_sample_string_to_list["ttbar"] = {"TT_powheg"};
-  m.map_sample_string_to_list["ttbar_ll"] = {"TTLL_powheg"};
-  m.map_sample_string_to_list["ttV"] = {"ttW", "ttZ", "ttH_nonbb"}; //FIXME ttH into ttV
-  m.map_sample_string_to_list["ttH"] = {"ttH_nonbb"};
-  m.map_sample_string_to_list["top"] = {"ttW", "ttZ", "ttH_nonbb"};
-  m.map_sample_string_to_list["top_tt"] = {"TT_powheg", "ttW", "ttZ", "ttH_nonbb"};
-  m.map_sample_string_to_list["Xgamma"] = {"TG", "TTG", "ZGto2LG", "WGtoLNuG_weighted"};
-  //m.map_sample_string_to_list["Xgamma"] = {"TG", "TTG", "ZGto2LG"};
-  m.map_sample_string_to_list["WW_double"] = {"WWTo2L2Nu_DS", "WpWpEWK", "WpWpQCD"};
-  m.map_sample_string_to_list["QCD"] = {"QCD_MuEnriched"};
-  m.map_sample_string_to_list["ttV_lep"] = {"ttWToLNu", "ttZToLL_M-1to10"};
-  m.map_sample_string_to_list["fake_HighdXY"] = {"fake_HighdXY"};
-  m.map_sample_string_to_list["fake_sfed_HighdXY"] = {"fake_sfed_HighdXY"};
-  m.map_sample_string_to_list["fake_sfed_HighdXY_UsePtCone"] = {"fake_sfed_HighdXY_UsePtCone"};
-  m.map_sample_string_to_list["fake_DiMuon_HighdXY"] = {"fake_HighdXY"};
-  m.map_sample_string_to_list["fake_Dijet"] = {"fake_Dijet"};
-  m.map_sample_string_to_list["fake_Dijet_LooseBJet"] = {"fake_Dijet_LooseBJet"};
+  m.map_sample_string_to_list["DY"] = {"DYJets_10to50_MG", "DYJets"};
+  m.map_sample_string_to_list["ZToLL_M_50_120"] = {"ZToLL_M_50_120"};
+  m.map_sample_string_to_list["ZToLL_M_120_200"] = {"ZToLL_M_120_200"};
+  m.map_sample_string_to_list["ZToLL_M_200_400"] = {"ZToLL_M_200_400"};
+  m.map_sample_string_to_list["ZToLL_M_400_800"] = {"ZToLL_M_400_800"};
+  m.map_sample_string_to_list["ZToLL_M_800_1400"] = {"ZToLL_M_800_1400"};
+  m.map_sample_string_to_list["ZToLL_M_1400_2300"] = {"ZToLL_M_1400_2300"};
+  m.map_sample_string_to_list["ZToLL_M_2300_3500"] = {"ZToLL_M_2300_3500"};
+  m.map_sample_string_to_list["ZToLL_M_3500_4500"] = {"ZToLL_M_3500_4500"};
+  m.map_sample_string_to_list["ZToLL_M_4500_6000"] = {"ZToLL_M_4500_6000"};
+  m.map_sample_string_to_list["ZToLL_M_6000_Inf"] = {"ZToLL_M_6000_Inf"};
+  m.map_sample_string_to_list["WJets_MG"] = {"WJets_MG"};
+  m.map_sample_string_to_list["VV_incl"] = {"WZ_pythia", "ZZ_pythia", "WW_pythia"};
+  m.map_sample_string_to_list["VV_excl"] = {"ZZTo2L2Q", "ZZTo4L_powheg", "WZTo2L2Q", "WZTo3LNu", "WWTo2L2Nu_powheg"};
+  m.map_sample_string_to_list["WW_excl"] = {"WWTo2L2Nu_powheg"};
+  m.map_sample_string_to_list["ttbar"] = {"TTLL_powheg", "TTLJ_powheg", "TTJJ_powheg"};
   m.map_sample_string_to_list["chargeflip"] = {"chargeflip"};
-  m.map_sample_string_to_list["prompt"] = {"TG", "TTG", "ZGto2LG", "WGtoLNuG_weighted", "WZTo3LNu_powheg", "ZZTo4L_powheg", "ggZZto2e2mu", "ggZZto2e2nu", "ggZZto2e2tau", "ggZZto2mu2nu", "ggZZto2mu2tau", "ggZZto4e", "ggZZto4mu", "ggZZto4tau", "ggHtoZZ", "WWW", "WWZ", "WZZ", "ZZZ", "ttW", "ttZ", "ttH_nonbb", "WWTo2L2Nu_DS", "WpWpEWK", "WpWpQCD"};
+  m.map_sample_string_to_list["fake"] = {"fake"};
+  m.map_sample_string_to_list["FromEMu"] = {"FromEMu"};
 
   m.map_sample_string_to_legendinfo["DY"] = make_pair("DY", kYellow);
-  m.map_sample_string_to_legendinfo["WJets"] = make_pair("WJets", kGreen);
-  m.map_sample_string_to_legendinfo["VV_excl"] = make_pair("diboson", kSpring-1);
+  m.map_sample_string_to_legendinfo["ZToLL_M_50_120"] = make_pair("m(Z) : 50-120", kRed-2);
+  m.map_sample_string_to_legendinfo["ZToLL_M_120_200"] = make_pair("m(Z) : 120-200", kRed-10);
+  m.map_sample_string_to_legendinfo["ZToLL_M_200_400"] = make_pair("m(Z) : 200-400", kOrange);
+  m.map_sample_string_to_legendinfo["ZToLL_M_400_800"] = make_pair("m(Z) : 400-800", kYellow);
+  m.map_sample_string_to_legendinfo["ZToLL_M_800_1400"] = make_pair("m(Z) : 800-1400", kGreen+3);
+  m.map_sample_string_to_legendinfo["ZToLL_M_1400_2300"] = make_pair("m(Z) : 1400-2300", kBlue+3);
+  m.map_sample_string_to_legendinfo["ZToLL_M_2300_3500"] = make_pair("m(Z) : 2300-3500", kViolet);
+  m.map_sample_string_to_legendinfo["ZToLL_M_3500_4500"] = make_pair("m(Z) : 3500-4500", kGray);
+  m.map_sample_string_to_legendinfo["ZToLL_M_4500_6000"] = make_pair("m(Z) : 4500-6000", kGray+2);
+  m.map_sample_string_to_legendinfo["ZToLL_M_6000_Inf"] = make_pair("m(Z) : 6000-Inf", kBlack);
+  m.map_sample_string_to_legendinfo["WJets_MG"] = make_pair("W", 870);
   m.map_sample_string_to_legendinfo["VV_incl"] = make_pair("diboson", kSpring-1);
-  m.map_sample_string_to_legendinfo["WZ_excl"] = make_pair("WZ", kGreen);
-  m.map_sample_string_to_legendinfo["ZZ_excl"] = make_pair("ZZ", kRed-7);
-  m.map_sample_string_to_legendinfo["VVV"] = make_pair("triboson", kSpring+10);
+  m.map_sample_string_to_legendinfo["VV_excl"] = make_pair("diboson", kSpring-1);
+  m.map_sample_string_to_legendinfo["WW_excl"] = make_pair("diboson", kSpring-1);
   m.map_sample_string_to_legendinfo["ttbar"] = make_pair("ttbar", kRed);
-  m.map_sample_string_to_legendinfo["ttbar_ll"] = make_pair("ttbar", kRed);
-  m.map_sample_string_to_legendinfo["ttV"] = make_pair("ttV", kOrange);
-  m.map_sample_string_to_legendinfo["ttH"] = make_pair("ttH", kOrange);
-  m.map_sample_string_to_legendinfo["top"] = make_pair("top", kRed);
-  m.map_sample_string_to_legendinfo["top_tt"] = make_pair("top", kRed);
-  m.map_sample_string_to_legendinfo["Xgamma"] = make_pair("X + #gamma", kSpring-7);
-  m.map_sample_string_to_legendinfo["WW_double"] = make_pair("DoubleWW", 74);
-  m.map_sample_string_to_legendinfo["ttV_lep"] = make_pair("ttV", kOrange);
-  m.map_sample_string_to_legendinfo["QCD"] = make_pair("QCD", 870);
-  m.map_sample_string_to_legendinfo["fake_HighdXY"] = make_pair("Misid. lepton background", 870);
-  m.map_sample_string_to_legendinfo["fake_sfed_HighdXY"] = make_pair("Misid. lepton background", 870);
-  m.map_sample_string_to_legendinfo["fake_sfed_HighdXY_UsePtCone"] = make_pair("Misid. lepton background", 870);
-  m.map_sample_string_to_legendinfo["fake_DiMuon_HighdXY"] = make_pair("Misid. lepton background", 870);
-  m.map_sample_string_to_legendinfo["fake_Dijet"] = make_pair("Misid. lepton background", 870);
-  m.map_sample_string_to_legendinfo["fake_Dijet_LooseBJet"] = make_pair("Misid. lepton background", 870);
-  m.map_sample_string_to_legendinfo["chargeflip"] = make_pair("Mismeas. charge background", kYellow);
-  m.map_sample_string_to_legendinfo["prompt"] = make_pair("Prompt background", kSpring-1);
+  m.map_sample_string_to_legendinfo["chargeflip"] = make_pair("Mismeas. sign bkgd.", kYellow);
+  m.map_sample_string_to_legendinfo["fake"] = make_pair("Misid. lepton background", 870);
+  m.map_sample_string_to_legendinfo["FromEMu"] = make_pair("Flavour Symm.", kRed);
   
   //===============================
   //==== set and make sample list
@@ -101,29 +85,25 @@ void Draw_SR(int XXX=0){
 
   //==== _Di<Lepton>_<JetSel>_<ifOffZ>_<charge>
 
-  //==== SS
-  if(XXX==0){
-    m.samples_to_use = {"VVV", "ttV", "VV_incl", "ttbar", "DY", "WJets"};
-
-    m.histname_suffix = {
-
-      "_DiMuon_SS",
-      "_DiMuon_STge400_SS",
-      "_DiMuon_HTge300_SS",
-
-    };
-  }
   //==== OS
-  if(XXX==1){
-    m.samples_to_use = {"VVV", "ttV", "VV_incl", "WJets", "ttbar", "DY"};
+  if(XXX==0){
+    m.samples_to_use = {"VV_excl", "ttbar", "DY"};
+    //m.samples_to_use = {"WW_excl", "FromEMu", "DY"};
 
     m.histname_suffix = {
-
-      "_DiMuon_AllCharge",
-      "_DiMuon_STge400_AllCharge",
-      "_DiMuon_HTge300_AllCharge",
-
+      "HNPair_SingleMuon_SR_OS",
+      "HNPair_DiPhoton_SR_OS",
     };
+
+  }
+  if(XXX==1){
+    m.samples_to_use = {"fake", "chargeflip", "VV_excl"};
+
+    m.histname_suffix = {
+      "HNPair_SingleMuon_SR_SS",
+      "HNPair_DiPhoton_SR_SS",
+    };
+
   }
 
   //============================
@@ -131,147 +111,142 @@ void Draw_SR(int XXX=0){
   //============================
   
   m.histname = {
-    "Njets", "Njets_nolepveto", "Nfwdjets", "Nbjets", "Nbjets_nolepveto", "Nbfwdjets",
-    "Nleptons",
-     //==== Lepton
-    "m_ll",
-    "leadingLepton_Pt", "leadingLepton_Eta", "leadingLepton_Type",
-    "secondLepton_Pt", "secondLepton_Eta", "secondLepton_Type",
-    //==== AK4 Jet
-    "leadingJet_Pt", "leadingJet_Eta",
-    "secondJet_Pt", "secondJet_Eta",
-    "leadingForwardJet_Pt", "leadingForwardJet_Eta",
-    "secondForwardJet_Pt", "secondForwardJet_Eta",
-    "leadingNoLepVetoJet_Pt", "leadingNoLepVetoJet_Eta",
-    "secondNoLepVetoJet_Pt", "secondNoLepVetoJet_Eta",
-    "PFMET", "PFMET_phi", "HT", "ST",
-    "MET2overST",
-    "Nvtx", "DeltaRl1l2", "Nevents",
-    //==== Fatjet
-    "Nfatjets",
-    //==== PairN
-    "N_Mass", "Z_Mass",
+    "NEvent",
+    "Lepton_0_Pt", "Lepton_0_Eta", "Lepton_0_RelIso", "Lepton_0_MiniRelIso", "Lepton_0_MVANoIso",
+    "Lepton_1_Pt", "Lepton_1_Eta", "Lepton_1_RelIso", "Lepton_1_MiniRelIso", "Lepton_1_MVANoIso",
+    "Jet_0_Pt", "Jet_0_Eta",
+    "Jet_1_Pt", "Jet_1_Eta",
+    "FatJet_0_Pt", "FatJet_0_Eta",
+    "FatJet_1_Pt", "FatJet_1_Eta",
+    "ZCand_Mass", "dR_ll",
+    "MET", "HT",
+    "MT",
+    "Jet_Size", "NBJets",
+    "N_Mass", "ZP_Mass",
   };
 
   m.x_title = {
-    "# of jets", "# of No-LeptonVeto jets", "# of forward jets", "# of b-jets", "# of No-LeptonVeto b-jets", "# of forward b-jets",
-    "# of leptons",
-    //==== Lepton
-    "m(ll) (GeV)",
-    "Leading Lepton p_{T} (GeV)", "Leading Lepton #eta", "Leading Lepton Type",
-    "Subleading Lepton p_{T} (GeV)", "Subleading Lepton #eta", "Subleading Lepton Type",
-    //==== AK4 Jet
-    "Leading Jet p_{T} (GeV)", "Leading Jet #eta",
-    "Subleading Jet p_{T} (GeV)", "Subleading Jet #eta",
-    "Leading Forward Jet p_{T} (GeV)", "Leading Forward Jet #eta",
-    "Subleading Forward Jet p_{T} (GeV)", "Subleading Forward Jet #eta",
-    "Leading No-LeptonVeto Jet p_{T} (GeV)", "Leading No-LeptonVeto Jet #eta",
-    "Subleading No-LeptonVeto Jet p_{T} (GeV)", "Subleading No-LeptonVeto Jet #eta",
-    "#slash{E}_{T}^{miss} (GeV)", "#phi of #slash{E}_{T}^{miss}", "H_{T} (GeV)", "S_{T} (GeV)",
-    "#slash{E}_{T}^{miss}^{2}/S_{T} (GeV)",
-    "# of vertices", "#DeltaR(l_{1},l_{2})", "onebin",
-    //==== Fatjet
-    "# of Fatjet",
-    //==== PairN
-    "m_{N,RECO} (GeV)", "m_{Z',RECO} (GeV)",
+    "# of events",
+    "Leading lepton p_{T} (GeV)", "Leading lepton #eta", "Leading lepton RelIso","Leading lepton MiniRelIso","Leading lepton MVA (NoIso)",
+    "Subleading lepton p_{T} (GeV)", "Subleading lepton #eta", "Subleading lepton RelIso","Subleading lepton MiniRelIso","Subleading lepton MVA (NoIso)",
+    "Leading jet p_{T} (GeV)", "Leading jet #eta",
+    "Subleading jet p_{T} (GeV)", "Subleading jet #eta",
+    "Leading fatjet p_{T} (GeV)", "Leading fatjet #eta",
+    "Subleading fatjet p_{T} (GeV)", "Subleading fatjet #eta",
+    "m(ll) (GeV)", "#DeltaR(ll)",
+    "#slash{E}_{T}^{miss} (GeV)", "H_{T} (GeV)",
+    "m_{T} (GeV)",
+    "# of jets", "# of b-tagged jets",
+    "m_{N} (GeV)", "m_{Z'} (GeV)",
   };
 
   m.units = {
-    "int", "int", "int", "int", "int", "int",
     "int",
-    //==== Lepton
+    "GeV", "", "", "", "",
+    "GeV", "", "", "", "",
+    "GeV", "GeV",
+    "GeV", "GeV",
+    "GeV", "GeV",
+    "GeV", "GeV",
+    "GeV", "",
+    "GeV", "GeV",
     "GeV",
-    "GeV", "", "int",
-    "GeV", "", "int",
-    //==== AK4 Jet
-    "GeV", "",
-    "GeV", "",
-    "GeV", "",
-    "GeV", "",
-    "GeV", "",
-    "GeV", "",
-    "GeV", "", "GeV", "GeV",
-    "GeV",
-    "int", "", "int",
-    //==== Fatjet
-    "int",
-    //==== PairN
-    "GeV","GeV",
+    "int", "int",
+    "GeV", "GeV",
   };
 
-  //==== TEST
-  if(XXX==-1){
-    m.samples_to_use = {"chargeflip", "Xgamma", "fake_Dijet", "VV_excl", "VVV", "top", "WW_double"};
+/*
+  m.histname = {
+    "Lepton_0_Pt", "Lepton_1_Pt",
+    "N_Mass", "ZP_Mass",
+  };
+  m.x_title = {
+    "Leading lepton p_{T} (GeV)", "Subleading lepton p_{T} (GeV)",
+    "m_{N} (GeV)", "m_{Z'} (GeV)",
+  };
+  m.units = {
+    "GeV", "GeV",
+    "GeV", "GeV",
+  };
+*/
+/*
+  m.histname = {
+    "ZCand_Mass"
+  };
+  m.x_title = {
+    "m(ll) (GeV)"
+  };
+  m.units = {
+    "GeV",
+  };
+*/
 
-    m.histname_suffix = {"_DiMuon_Preselection_SS"};
-    m.PrimaryDataset = {"SingleMuon"};
-    m.LeptonChannels = {21};
-    m.RegionType = {0};
-    m.UseLogy = {-1};
-    m.histname = {"m_lljj_lljjWclosest"};
-    m.x_title = {"m(lljj_{W}) (GeV)"};
-    m.units = {"GeV"};
-
+  if(MakeShape){
+    m.histname = {
+      "ZP_Mass"
+    };
+    m.x_title = {
+      "m_{Z'} (GeV)"
+    };
+    m.units = {
+      "GeV",
+    };
   }
 
   for(unsigned int i=0; i<m.histname_suffix.size(); i++){
 
     //==== PD
     if(m.histname_suffix.at(i).Contains("DiMuon")){
-      m.PrimaryDataset.push_back("SingleMuon");
+      m.PrimaryDataset.push_back("DoubleMuon");
       m.LeptonChannels.push_back(21);
     }
     else if(m.histname_suffix.at(i).Contains("DiElectron")){
       m.PrimaryDataset.push_back("DoubleEG");
       m.LeptonChannels.push_back(22);
     }
-    else if(m.histname_suffix.at(i).Contains("EMu")){
-      m.PrimaryDataset.push_back("MuonEG");
-      m.LeptonChannels.push_back(23);
+    else if(m.histname_suffix.at(i).Contains("SingleMuon")){
+      m.PrimaryDataset.push_back("SingleMuon");
+      m.LeptonChannels.push_back(21); //FIXME
     }
-    else if(m.histname_suffix.at(i).Contains("DiLepton")){
-      m.PrimaryDataset.push_back("DiLepton");
-      m.LeptonChannels.push_back(20);
+    else if(m.histname_suffix.at(i).Contains("DiPhoton")){
+      m.PrimaryDataset.push_back("DoubleEG");
+      m.LeptonChannels.push_back(22); //FIXME
     }
     else{
       cout << "ERROR : PD not correct" << endl;
       return;
     }
 
-    if(m.histname_suffix.at(i).Contains("Preselection")){
-      m.RegionType.push_back(1);
+    //==== RegionType : + when SS, - when OS
+    bool IsSS = m.histname_suffix.at(i).Contains("_SS");
+    int int_IsSS = +1;
+    if(!IsSS) int_IsSS = -1;
+
+    if(m.histname_suffix.at(i).Contains("SR")){
+      m.RegionType.push_back(int_IsSS);
     }
-    else if(m.histname_suffix.at(i).Contains("Low")){
-      if(m.histname_suffix.at(i).Contains("TwoJet_NoFatJet")) m.RegionType.push_back(21);
-      else if(m.histname_suffix.at(i).Contains("OneJet_NoFatJet")) m.RegionType.push_back(22);
-      else m.RegionType.push_back(20);
+    else if(m.histname_suffix.at(i).Contains("CR1")){
+      m.RegionType.push_back(int_IsSS*10);
     }
-    else if(m.histname_suffix.at(i).Contains("High")){
-      if(m.histname_suffix.at(i).Contains("TwoJet_NoFatJet")) m.RegionType.push_back(31);
-      else if(m.histname_suffix.at(i).Contains("OneFatJet")) m.RegionType.push_back(32);
-      else m.RegionType.push_back(30);
+    else if(m.histname_suffix.at(i).Contains("CR2")){
+      m.RegionType.push_back(int_IsSS*20);
+    }
+    else if(m.histname_suffix.at(i).Contains("CR3")){
+      m.RegionType.push_back(int_IsSS*30);
     }
     else{
       m.RegionType.push_back(0);
     }
 
     //==== Log plot boolean
-    if(XXX==0) m.UseLogy.push_back(-1);
-    else if(XXX==1) m.UseLogy.push_back(1);
-    else m.UseLogy.push_back(-1);
+    if(XXX==0) m.UseLogy.push_back(1);
+    if(XXX==1) m.UseLogy.push_back(-1);
 
     if(ScaleMC) m.ApplyMCNormSF.push_back(true);
     else m.ApplyMCNormSF.push_back(false);
 
-    //if(m.histname_suffix.at(i).Contains("Preselection")) m.drawdata.push_back(true);
-    //else m.drawdata.push_back(false);
-
-    //m.drawdata.push_back(false);
-
-    m.drawdata.push_back(true);
-
-    //if(m.histname_suffix.at(i).Contains("DiLepton")) m.drawratio.push_back(false);
-    //else m.drawratio.push_back(true);
+    m.drawdata.push_back(false);
+    //m.drawdata.push_back(true);
 
     m.drawratio.push_back(true);
 
@@ -322,36 +297,37 @@ void Draw_SR(int XXX=0){
   //==== set signal mass points
   //=============================
 
-  if(XXX==0 || XXX==1){
-  //==== general AN
+  vector<double> zmasses = {1200, 2000, 3200, 4000};
+  vector<Color_t> colors_zmass = {kGreen, kViolet, kGray, kOrange};
+  if(MakeShape){
+    zmasses = {400, 800, 1200, 1600, 2000, 2400, 2800, 3200, 3600, 4000, 4400, 4800};
+    colors_zmass.clear();
+    for(unsigned int i=0; i<zmasses.size(); i++) colors_zmass.push_back(kRed);
+  }
+  for(int i=0; i<zmasses.size(); i++){
 
-    vector<double> zmasses = {500, 1000, 3000};
-    vector<Color_t> colors_zmass = {kGreen, kViolet, kGray};
-    for(int i=0; i<zmasses.size(); i++){
+    double this_zmass = zmasses.at(i);
+    Color_t this_color = colors_zmass.at(i);
 
-      double this_zmass = zmasses.at(i);
-      Color_t this_color = colors_zmass.at(i);
+    LRSMSignalInfo lrsminfo;
+    lrsminfo.prod_channel="pair";
+    lrsminfo.lep_channel="MuMu";
+    lrsminfo.generator="aMCNLO";
+    lrsminfo.mass_WR = 5000;
+    lrsminfo.mass_Z = this_zmass;
+    vector<int> nmasses = GetHNMassRange(lrsminfo.mass_Z, MakeShape);
 
-      LRSMSignalInfo lrsminfo;
-      lrsminfo.prod_channel="pair";
-      lrsminfo.lep_channel="MuMu";
-      lrsminfo.generator="pythia";
-      lrsminfo.mass_WR = 5000;
-      lrsminfo.mass_Z = this_zmass;
-      vector<int> nmasses = GetHNMassRange(lrsminfo.mass_Z);
+    for(int j=0;j<nmasses.size(); j++){
 
-      for(int j=0;j<nmasses.size(); j++){
+      lrsminfo.mass_N = nmasses.at(j);
+      lrsminfo.SetNames();
 
-        lrsminfo.mass_N = nmasses.at(j);
-        lrsminfo.SetNames();
-
-        m.signal_LRSMinfo.push_back(lrsminfo);
-        m.signal_color.push_back(this_color);
-        m.signal_style.push_back(j+1);
-        m.signal_draw.push_back(true);
-      }
-
+      m.signal_LRSMinfo.push_back(lrsminfo);
+      m.signal_color.push_back(this_color);
+      m.signal_style.push_back(j+1);
+      m.signal_draw.push_back(true);
     }
+
   }
 
   //=====================================
@@ -362,6 +338,11 @@ void Draw_SR(int XXX=0){
     LRSMSignalInfo this_lrsm = m.signal_LRSMinfo.at(i);
 
     m.map_class_to_LRSMSignalInfo[Plotter::inclusive].push_back( this_lrsm );
+
+    this_lrsm.lep_channel = "ElEl";
+    this_lrsm.SetNames();
+    m.map_class_to_LRSMSignalInfo[Plotter::inclusive].push_back( this_lrsm );
+
   }
   m.AllSignalClasses = {Plotter::inclusive};
 
@@ -370,7 +351,7 @@ void Draw_SR(int XXX=0){
   //=============
   
   //==== script to generate rebins
-  ofstream skeleton_rebins("./data/SR_rebins.txt", ios::trunc);
+  ofstream skeleton_rebins("./data/tmp_SR_rebins.txt", ios::trunc);
   for(unsigned int i=0; i<m.histname_suffix.size(); i++){
     for(unsigned int j=0; j<m.histname.size(); j++){
       skeleton_rebins
@@ -380,14 +361,14 @@ void Draw_SR(int XXX=0){
   }
   skeleton_rebins.close();
 
-  m.SetRebins(WORKING_DIR+"/data/"+dataset+"/SR_rebins.txt");
+  m.SetRebins(WORKING_DIR+"/data/"+dataset+"/CR_rebins.txt");
 
   //=============
   //==== y_maxs
   //=============
   
   //==== script to generate rebins
-  ofstream skeleton_y_maxs("./data/SR_yaxis.txt", ios::trunc);
+  ofstream skeleton_y_maxs("./data/tmp_SR_yaxis.txt", ios::trunc);
   for(unsigned int i=0; i<m.histname_suffix.size(); i++){
     for(unsigned int j=0; j<m.histname.size(); j++){
       skeleton_y_maxs
@@ -402,15 +383,14 @@ void Draw_SR(int XXX=0){
   m.default_y_max = 20.;
   m.default_y_min = 0.;
 
-  m.SetYAxis(WORKING_DIR+"/data/"+dataset+"/SR_yaxis.txt"); 
+  m.SetYAxis(WORKING_DIR+"/data/"+dataset+"/CR_yaxis.txt"); 
 
   //=============
   //==== x_mins
   //=============
 
-
   //==== script to generate rebins
-  ofstream skeleton_x_mins("./data/SR_xaxis.txt", ios::trunc);
+  ofstream skeleton_x_mins("./data/tmp_SR_xaxis.txt", ios::trunc);
   for(unsigned int i=0; i<m.histname_suffix.size(); i++){
     for(unsigned int j=0; j<m.histname.size(); j++){
       skeleton_x_mins
@@ -420,9 +400,7 @@ void Draw_SR(int XXX=0){
   }
   skeleton_x_mins.close();
 
-
-
-  m.SetXAxis(WORKING_DIR+"/data/"+dataset+"/SR_xaxis.txt");
+  m.SetXAxis(WORKING_DIR+"/data/"+dataset+"/CR_xaxis.txt");
 
   //===============
   //==== k-factor
@@ -439,9 +417,10 @@ void Draw_SR(int XXX=0){
   //===============================
   //==== prepare plot directories
   //===============================
-  
-  m.plotpath = ENV_PLOT_PATH+"/"+m.data_class+"/SR/";
+
+  m.plotpath = ENV_PLOT_PATH+"/"+dataset+"/SR/";
   m.make_plot_directory();
+  m.outputdir_for_shape = ENV_PLOT_PATH+"/"+dataset+"/FilesForShapes/SR/";
   
   //==========================
   //==== finally, draw plots
